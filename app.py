@@ -10,7 +10,7 @@ from openai import OpenAI
 client = OpenAI(api_key='sk-')
 
 response = client.files.create(
-  file=open("mydata.jsonl", "rb"),
+  file=open("training_data.jsonl", "rb"),
   purpose="fine-tune"
 )
 
