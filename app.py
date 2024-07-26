@@ -19,13 +19,16 @@ training_file_id = response['id']
 print(f"Uploaded file ID: {training_file_id}")
 
 # Create a fine-tuning job
-client.fine_tuning.jobs.create(
+response = client.fine_tuning.jobs.create(
   training_file=training_file_id, 
   model="gpt-4o-mini"
 )
+
+job_id = response['id']
+print(f"Fine tunning ID: {job_id}")
 
 # List 10 fine-tuning jobs
 client.fine_tuning.jobs.list(limit=10)
 
 # Retrieve the state of a fine-tune
-client.fine_tuning.jobs.retrieve("ftjob-abc123")
+client.fine_tuning.jobs.retrieve(job_id)
