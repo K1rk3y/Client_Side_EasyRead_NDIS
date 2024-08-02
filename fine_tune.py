@@ -45,7 +45,7 @@ def check_job_status_and_events(job_id, client, delay=5):
         time.sleep(delay)
 
 
-def main(training_file_name, validation_file_name):
+def fine_tune(training_file_name, validation_file_name):
     if not validator(training_file_name):
         return
     
@@ -74,5 +74,4 @@ def main(training_file_name, validation_file_name):
     fine_tuned_model_id = response.fine_tuned_model
     print("Fine-tuned model ID:", fine_tuned_model_id)
 
-
-main('training_data.jsonl', 'validation_data.jsonl')
+    return fine_tuned_model_id
