@@ -3,7 +3,6 @@ import tiktoken # for token counting
 import numpy as np
 from collections import defaultdict
 
-
 # simplified from https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb
 def num_tokens_from_messages(encoding, messages, tokens_per_message=3, tokens_per_name=1):
     num_tokens = 0
@@ -135,3 +134,6 @@ def validator(data_path):
     print(f"By default, you'll be charged for ~{n_epochs * n_billing_tokens_in_dataset} tokens")
 
     return opt
+
+
+validator('training_data.jsonl')
