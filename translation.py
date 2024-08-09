@@ -8,6 +8,7 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 from fine_tune import fine_tune
+import json
 
 
 load_dotenv()
@@ -63,54 +64,25 @@ def create_context(input, df, max_len=1800, size="ada"):
 
 def conversion(df, model="gpt-3.5-turbo", condition_prompt='', max_len=1800, size="ada", debug=False, max_tokens=300, stop_sequence=None):
     context = create_context(input, df, max_len=max_len, size=size)
+    
+    with open('prompts.jsonl', 'r') as file:
+        data = json.load(file)
+
+    # Create the messages list
+    system_prompt=f"You are a translator, your role is to translate the input text into easy read format based on BOTH the user input and the context below\nContext: {context}\nAdditional infomation: {condition_prompt}"
+    messages = [{"role": "system", "content": system_prompt}]
+
+    for conversation in data["conversations"]:
+        messages.append({"role": "user", "content": conversation["user"]})
+        messages.append({"role": "assistant", "content": conversation["assistant"]})
+
     if debug:
         print("Context:\n" + context)
         print("\n\n")
+
     try:
-        prompt=f"You are a translator, your role is to translate the input text into easy read format based on BOTH the user input and the context below\nContext: {context}\nAdditional infomation: {condition_prompt}"
         response = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": """Inclusion Australia wants big changes to the current Disability Employment Services (DES) because they are failing people with an intellectual disability and their families. 
-                                                Currently, only 3.1 percent of those using DES are people with an intellectual disability. 
-                                                People with an intellectual disability have the right to work, and to be paid fairly for that work.
-                                                Most people with an intellectual disability do not have access to paid work in open and self-
-                                                employment. This means that most people with an intellectual disability live in poverty,
-                                                with no opportunity to have the same lives as non-disabled people, and other people with
-                                                disability. People with an intellectual disability have to find their way through lots of different systems when
-                                                they are looking for support to get and keep a job. These systems are Disability Employment Services
-                                                (DES), the National Disability Insurance Scheme (NDIS), the Disability Support Pension (DSP),
-                                                Centrelink and school. We think all this needs to be much easier. """},
-                {"role": "assistant", "content": """Inclusion Australia made a report about Disability Employment Services. 
-                                                    DES for short. 
-                                                    DES providers are services that help people with disability find jobs."""},
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": """There has been lots of research into different ways to support people with an intellectual disability
-                                                at work. That research has found there are ways that are good and we've used that research in our
-                                                submission. Inclusion Australia's Our Voice Committee, who are all people with an intellectual disability, say that
-                                                “People with disabilities have the right to work in the open market like anyone else, and get the
-                                                training and support they need; this means no more sheltered workshops."""},
-                {"role": "assistant", "content": """We want DES to work better for people with intellectual disability.
-                                                    Inclusion Australia will send this report to the government.
-                                                    We want them to make big changes to DES.
-                                                    This document will talk about some of the main ideas in the report."""},
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": """Lots of DES don’t know about people with an intellectual disability, or about what works to get a job
-                                                and keep people at work. People with an intellectual disability and their families find it hard to get accessible, independent
-                                                information about employment, as well as the NDIS and Centrelink. A Centre of Excellence, as well as specialist DES will know what kinds of programs and supports work
-                                                the best for people with an intellectual disability and their families. They will make information accessible and available to people with an intellectual disability and their
-                                                families so they can find their way through complicated systems, like the NDIS and Centrelink."""},
-                {"role": "assistant", "content": """We found out that lots of people with intellectual disability do not get the same
-                                                    money and jobs as other people.
-                                                    People with intellectual disability have the right to
-                                                    • Work just like everyone else
-                                                    • Be paid well"""},
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": """There are lots of obstacles in the way of people with an intellectual disability who want to get and
-                                                keep a job. These obstacles can be the low expectations that other people have, and not having the same kinds of choices.
-                                                Big systems, like the NDIS and DES, can also be an obstacle to working in a regular job or having a
-                                                business. We want to change that."""}
-            ],
+            messages=messages,
             temperature=0,
             max_tokens=max_tokens,
             top_p=1,

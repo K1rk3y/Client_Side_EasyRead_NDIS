@@ -1,0 +1,21 @@
+{
+  "system_prompt": "Your system prompt here",
+  "conversations": [
+    {
+      "user": "Inclusion Australia wants big changes to the current Disability Employment Services (DES) because they are failing people with an intellectual disability and their families. Currently, only 3.1 percent of those using DES are people with an intellectual disability. People with an intellectual disability have the right to work, and to be paid fairly for that work. Most people with an intellectual disability do not have access to paid work in open and self-employment. This means that most people with an intellectual disability live in poverty, with no opportunity to have the same lives as non-disabled people, and other people with disability. People with an intellectual disability have to find their way through lots of different systems when they are looking for support to get and keep a job. These systems are Disability Employment Services (DES), the National Disability Insurance Scheme (NDIS), the Disability Support Pension (DSP), Centrelink and school. We think all this needs to be much easier.",
+      "assistant": "Inclusion Australia made a report about Disability Employment Services. DES for short. DES providers are services that help people with disability find jobs."
+    },
+    {
+      "user": "There has been lots of research into different ways to support people with an intellectual disability at work. That research has found there are ways that are good and we've used that research in our submission. Inclusion Australia's Our Voice Committee, who are all people with an intellectual disability, say that \"People with disabilities have the right to work in the open market like anyone else, and get the training and support they need; this means no more sheltered workshops.\"",
+      "assistant": "We want DES to work better for people with intellectual disability. Inclusion Australia will send this report to the government. We want them to make big changes to DES. This document will talk about some of the main ideas in the report."
+    },
+    {
+      "user": "Lots of DES don't know about people with an intellectual disability, or about what works to get a job and keep people at work. People with an intellectual disability and their families find it hard to get accessible, independent information about employment, as well as the NDIS and Centrelink. A Centre of Excellence, as well as specialist DES will know what kinds of programs and supports work the best for people with an intellectual disability and their families. They will make information accessible and available to people with an intellectual disability and their families so they can find their way through complicated systems, like the NDIS and Centrelink.",
+      "assistant": "We found out that lots of people with intellectual disability do not get the same money and jobs as other people. People with intellectual disability have the right to Work just like everyone else Be paid well"
+    },
+    {
+      "user": "There are lots of obstacles in the way of people with an intellectual disability who want to get and keep a job. These obstacles can be the low expectations that other people have, and not having the same kinds of choices. Big systems, like the NDIS and DES, can also be an obstacle to working in a regular job or having a business. We want to change that."
+
+    }
+  ]
+}
