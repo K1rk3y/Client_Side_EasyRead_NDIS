@@ -63,7 +63,7 @@ def is_capitalized_paragraph(paragraph):
     return all(word[0].isupper() for word in words)
 
 
-def most_common_font_size(doc):
+def most_common_font_size(doc, ignore_small_font):
     font_size_counter = Counter()
     for page_num in range(len(doc)):
         page = doc.load_page(page_num)
@@ -75,7 +75,21 @@ def most_common_font_size(doc):
                     for span in line["spans"]:
                         font_size_counter[span["size"]] += 1
 
-    return font_size_counter.most_common(1)[0][0] if font_size_counter else None
+    most_common_font_size = None
+    for font_size, _ in font_size_counter.most_common():
+        if ignore_small_font and font_size >= 12:
+            most_common_font_size = font_size
+            break
+
+        if not ignore_small_font and font_size >= 10:
+            most_common_font_size = font_size
+            break
+
+    # If no font size >= 12 was found, fall back to the most common font size
+    if most_common_font_size is None and font_size_counter:
+        most_common_font_size = font_size_counter.most_common(1)[0][0]
+
+    return most_common_font_size
 
 
 def extract_text_from_pdf(pdf_path, ignore_small_font=False):
@@ -88,7 +102,8 @@ def extract_text_from_pdf(pdf_path, ignore_small_font=False):
     paragraphs = []
     unique_paragraphs = set()
 
-    fsize = most_common_font_size(doc)
+    fsize = most_common_font_size(doc, ignore_small_font)
+    print("FSIZE: ", fsize)
 
     for page_num in range(len(doc)):
         page = doc.load_page(page_num)
@@ -101,7 +116,7 @@ def extract_text_from_pdf(pdf_path, ignore_small_font=False):
             if block["type"] == 0:  # Type 0 is text
                 for line in block["lines"]:
                     for span in line["spans"]:
-                        if ignore_small_font and span["size"] != fsize:
+                        if span["size"] != fsize:
                             continue
                         cleaned_text = clean_text(span["text"].strip())
                         if cleaned_text and not is_unwanted_text(cleaned_text):

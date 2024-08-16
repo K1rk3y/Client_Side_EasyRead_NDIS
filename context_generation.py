@@ -2,28 +2,12 @@ import fitz
 import csv
 import re
 import os
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 
-def pair_pdfs(directory):
-    # Create a dictionary to store the pairs based on the index
-    pairs = defaultdict(list)
-    
-    # List all files in the directory
-    for filename in os.listdir(directory):
-        if filename.endswith('.pdf'):
-            # Split the filename to extract the index and order
-            parts = filename.split('_')
-            if len(parts) == 3 and parts[0] == "ER" and parts[2].split('.')[0] in {"0", "1"}:
-                index = parts[1]
-                order = int(parts[2].split('.')[0])
-                pairs[index].append((order, filename))
-    
-    # Sort the files by the order (0 first, 1 second) and return the 2D list
-    paired_list = [sorted(pairs[index]) for index in sorted(pairs)]
-    paired_list = [[file1[1], file2[1]] for file1, file2 in paired_list]
-
-    return paired_list
+def remove_newlines(serie):
+    serie = serie.replace('\n', ' ').replace('\r', ' ').replace('\\n', ' ')
+    return serie
 
 
 def clean_text(text):
@@ -34,6 +18,7 @@ def clean_text(text):
     cleaned_text = re.sub(r"[^a-zA-Z0-9\s.,!?]", "", text)
     # Replace multiple spaces with a single space
     cleaned_text = re.sub(r"\s+", " ", cleaned_text).strip()
+    cleaned_text = remove_newlines(cleaned_text)
     return cleaned_text
 
 
@@ -52,6 +37,40 @@ def is_unwanted_text(line):
     return False
 
 
+def is_capitalized_paragraph(paragraph):
+    words = paragraph.split()
+    return all(word[0].isupper() for word in words)
+
+
+def most_common_font_size(doc, ignore_small_font):
+    font_size_counter = Counter()
+    for page_num in range(len(doc)):
+        page = doc.load_page(page_num)
+        blocks = page.get_text("dict")["blocks"]
+
+        for block in blocks:
+            if block["type"] == 0:  # Type 0 is text
+                for line in block["lines"]:
+                    for span in line["spans"]:
+                        font_size_counter[span["size"]] += 1
+
+    most_common_font_size = None
+    for font_size, _ in font_size_counter.most_common():
+        if ignore_small_font and font_size >= 12:
+            most_common_font_size = font_size
+            break
+
+        if not ignore_small_font and font_size >= 10:
+            most_common_font_size = font_size
+            break
+
+    # If no font size >= 12 was found, fall back to the most common font size
+    if most_common_font_size is None and font_size_counter:
+        most_common_font_size = font_size_counter.most_common(1)[0][0]
+
+    return most_common_font_size
+
+
 def extract_text_from_pdf(pdf_path, ignore_small_font=False):
     """
     Extracts text from a PDF file, cleans it, and returns it as a list of paragraphs.
@@ -60,11 +79,15 @@ def extract_text_from_pdf(pdf_path, ignore_small_font=False):
     """
     doc = fitz.open(pdf_path)
     paragraphs = []
-    
+    unique_paragraphs = set()
+
+    fsize = most_common_font_size(doc, ignore_small_font)
+    print("FSIZE: ", fsize)
+
     for page_num in range(len(doc)):
         page = doc.load_page(page_num)
         blocks = page.get_text("dict")["blocks"]
-        
+
         page_paragraphs = []
         current_paragraph = []
 
@@ -72,19 +95,27 @@ def extract_text_from_pdf(pdf_path, ignore_small_font=False):
             if block["type"] == 0:  # Type 0 is text
                 for line in block["lines"]:
                     for span in line["spans"]:
-                        if ignore_small_font and span["size"] < 9:
+                        if span["size"] != fsize:
                             continue
                         cleaned_text = clean_text(span["text"].strip())
                         if cleaned_text and not is_unwanted_text(cleaned_text):
                             current_paragraph.append(cleaned_text)
 
             if current_paragraph:
-                page_paragraphs.append(" ".join(current_paragraph))
+                paragraph = " ".join(current_paragraph)
+                if not is_capitalized_paragraph(paragraph):
+                    page_paragraphs.append(paragraph)
                 current_paragraph = []
 
-        paragraphs.extend(page_paragraphs)
+        for paragraph in page_paragraphs:
+            if paragraph in unique_paragraphs:
+                # Remove all occurrences if a duplicate is found
+                unique_paragraphs.discard(paragraph)
+            else:
+                unique_paragraphs.add(paragraph)
 
-    return "\n\n".join(paragraphs)  # Join all paragraphs with double newline for separation
+    # Join remaining paragraphs
+    return " ".join(unique_paragraphs)
 
 
 def write_text_to_csv(text, csv_path, num_columns=4):
@@ -107,5 +138,5 @@ if __name__ == "__main__":
     pdf_path = 'test.pdf'  # Replace with your PDF file path
     csv_path = 'output.csv'  # Replace with your desired CSV output file path
     
-    text = extract_text_from_pdf(pdf_path, ignore_small_font=True)
+    text = extract_text_from_pdf(pdf_path, ignore_small_font=False)
     write_text_to_csv(text, csv_path)

@@ -66,8 +66,9 @@ def conversion(df, model="gpt-3.5-turbo", input="", condition_prompt='', max_len
 
     for conversation in data["conversations"]:
         messages.append({"role": "user", "content": conversation["user"]})
-        if "assistant" in conversation:
-            messages.append({"role": "assistant", "content": conversation["assistant"]})
+        messages.append({"role": "assistant", "content": conversation["assistant"]})
+
+    messages.append({"role": "user", "content": input})
 
     if debug:
         print("Context:\n" + context)
@@ -93,7 +94,7 @@ def conversion(df, model="gpt-3.5-turbo", input="", condition_prompt='', max_len
 
 
 def Wrapper(crawler, condition_prompt):
-    # model = fine_tune('training_data.jsonl', 'validation_data.jsonl')
+    model = fine_tune('training_data.jsonl', 'validation_data.jsonl')
     # Load tokenizer
     tokenizer = tiktoken.get_encoding("cl100k_base")
 
@@ -151,6 +152,6 @@ def Wrapper(crawler, condition_prompt):
     df['embeddings'] = df['embeddings'].apply(literal_eval).apply(np.array)
     df.head()
 
-    return conversion(df,  input="There are lots of obstacles in the way of people with an intellectual disability who want to get and keep a job. These obstacles can be the low expectations that other people have, and not having the same kinds of choices. Big systems, like the NDIS and DES, can also be an obstacle to working in a regular job or having a business. We want to change that.", condition_prompt=condition_prompt, debug=False)
+    return conversion(df, model, input="There are lots of obstacles in the way of people with an intellectual disability who want to get and keep a job. These obstacles can be the low expectations that other people have, and not having the same kinds of choices. Big systems, like the NDIS and DES, can also be an obstacle to working in a regular job or having a business. We want to change that.", condition_prompt=condition_prompt, debug=False)
 
 print("OPT: ", Wrapper('output.csv', 'make sure all sentences are coherent'))
