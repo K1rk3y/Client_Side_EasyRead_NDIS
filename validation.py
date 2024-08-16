@@ -136,4 +136,4 @@ def validator(data_path):
     return opt
 
 
-validator('training_data.jsonl')
+# validator('training_data.jsonl')

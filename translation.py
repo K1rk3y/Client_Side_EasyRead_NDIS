@@ -15,14 +15,6 @@ load_dotenv()
 api_key = os.getenv('API_KEY')
 client = OpenAI(api_key=api_key)
 
-# Function to remove newlines from a Series
-def remove_newlines(serie):
-    serie = serie.str.replace('\n', ' ')
-    serie = serie.str.replace('\\n', ' ')
-    serie = serie.str.replace('  ', ' ')
-    serie = serie.str.replace('  ', ' ')
-    return serie
-
 # Function to split the text into chunks of a maximum number of tokens
 def split_into_many(tokenizer, text, max_tokens):
     sentences = text.split('. ')
@@ -62,19 +54,20 @@ def create_context(input, df, max_len=1800, size="ada"):
     return "\n\n###\n\n".join(returns)
 
 
-def conversion(df, model="gpt-3.5-turbo", condition_prompt='', max_len=1800, size="ada", debug=False, max_tokens=300, stop_sequence=None):
+def conversion(df, model="gpt-3.5-turbo", input="", condition_prompt='', max_len=1800, size="ada", debug=False, max_tokens=300, stop_sequence=None):
     context = create_context(input, df, max_len=max_len, size=size)
     
     with open('prompts.jsonl', 'r') as file:
         data = json.load(file)
 
     # Create the messages list
-    system_prompt=f"You are a translator, your role is to translate the input text into easy read format based on BOTH the user input and the context below\nContext: {context}\nAdditional infomation: {condition_prompt}"
+    system_prompt=f"You are a translator, your role is to translate the input text into easy read format based on BOTH the user input and the context below\nContext: {context}\nAdditional instruction: {condition_prompt}"
     messages = [{"role": "system", "content": system_prompt}]
 
     for conversation in data["conversations"]:
         messages.append({"role": "user", "content": conversation["user"]})
-        messages.append({"role": "assistant", "content": conversation["assistant"]})
+        if "assistant" in conversation:
+            messages.append({"role": "assistant", "content": conversation["assistant"]})
 
     if debug:
         print("Context:\n" + context)
@@ -100,6 +93,7 @@ def conversion(df, model="gpt-3.5-turbo", condition_prompt='', max_len=1800, siz
 
 
 def Wrapper(crawler, condition_prompt):
+    # model = fine_tune('training_data.jsonl', 'validation_data.jsonl')
     # Load tokenizer
     tokenizer = tiktoken.get_encoding("cl100k_base")
 
@@ -157,8 +151,6 @@ def Wrapper(crawler, condition_prompt):
     df['embeddings'] = df['embeddings'].apply(literal_eval).apply(np.array)
     df.head()
 
-    model = fine_tune('training_data.jsonl', 'validation_data.jsonl')
+    return conversion(df,  input="There are lots of obstacles in the way of people with an intellectual disability who want to get and keep a job. These obstacles can be the low expectations that other people have, and not having the same kinds of choices. Big systems, like the NDIS and DES, can also be an obstacle to working in a regular job or having a business. We want to change that.", condition_prompt=condition_prompt, debug=False)
 
-    return conversion(df, model, input=input, condition_prompt=condition_prompt, debug=False)
-
-Wrapper('output.csv', '')
+print("OPT: ", Wrapper('output.csv', 'make sure all sentences are coherent'))
