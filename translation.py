@@ -195,16 +195,16 @@ def Wrapper(crawler, input, condition_prompt, model_id=None):
 
     return conversion(df, model, input, condition_prompt, debug=False)
 
-print("OPT: ", Wrapper('output.csv', """Inclusion Australia wants a Centre of Excellence in open and self-employment of people with an
-intellectual disability to be set up. We also want to see specialist Disability Employment Services
-organisations in every state and territory, who know about what works to support people with an
-intellectual disability at work.
-Lots of DES don’t know about people with an intellectual disability, or about what works to get a job
-and keep people at work.
-People with an intellectual disability and their families find it hard to get accessible, independent
-information about employment, as well as the NDIS and Centrelink.
-A Centre of Excellence, as well as specialist DES will know what kinds of programs and supports work
-the best for people with an intellectual disability and their families.
-They will make information accessible and available to people with an intellectual disability and their
-families so they can find their way through complicated systems, like the NDIS and Centrelink.
-The Centre of Excellence will use the evidence to make guides about open and self-employment""", '', 'ft:gpt-3.5-turbo-0125:intelife-group::9zFhmfdc'))
+print("OPT: ", Wrapper('output.csv', """Many people with an intellectual disability rely on the Disability Support Pension (DSP). The rules
+about working and the DSP can discourage people with an intellectual disability from getting a job,
+and from taking on more hours.
+Often, people with an intellectual disability are only offered work in a sheltered workshop, also
+known as an Australian Disability Enterprise (ADE), earning very low wages. The ADE deals with the
+complexity of Centrelink, making it simpler to work there than in open employment.
+When people with an intellectual disability earn money from their jobs, they lose some of money
+they get from the DSP. This can be as high as 68c for every $1 they earn, which is a big penalty for
+working. Inclusion Australia thinks that should change, and we want people with an intellectual
+disability to be able to keep more of the money they earn at work.
+People with an intellectual disability who don’t do what a Disability Employment Service (DES) tells
+them to can have their DSP reduced or stopped. We don’t think this is a good idea, and research says
+that this approach doesn’t help people get a job.""", '', 'ft:gpt-3.5-turbo-0125:intelife-group::9zFhmfdc'))

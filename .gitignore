@@ -1,1 +1,4 @@
 .env
+embeddings.csv
+processed/scraped.csv
+text/output.txt
