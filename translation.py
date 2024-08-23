@@ -54,7 +54,7 @@ def create_context(input, df, max_len=1800, size="ada"):
     return "\n\n###\n\n".join(returns)
 
 
-def conversion(df, model="gpt-3.5-turbo", input="", condition_prompt='', max_len=1800, size="ada", debug=False, max_tokens=300, stop_sequence=None):
+def conversion(df, model="gpt-3.5-turbo", input="", condition_prompt='', max_len=1800, size="ada", debug=False, max_tokens=200, stop_sequence=None):
     context = create_context(input, df, max_len=max_len, size=size)
     
     with open('prompts.jsonl', 'r') as file:
@@ -91,15 +91,56 @@ def conversion(df, model="gpt-3.5-turbo", input="", condition_prompt='', max_len
     except Exception as e:
         print(e)
         return ""
+    
+
+def remove_newlines(serie):
+    serie = serie.str.replace('\n', ' ')
+    serie = serie.str.replace('\\n', ' ')
+    serie = serie.str.replace('  ', ' ')
+    serie = serie.str.replace('  ', ' ')
+    return serie
 
 
-def Wrapper(crawler, condition_prompt):
-    model = fine_tune('training_data.jsonl', 'validation_data.jsonl')
+def create_df():
+    # Create a list to store the text files
+    texts = []
+
+    # Get all the text files in the text directory
+    for file in os.listdir("text/"):
+
+        # Open the file and read the text
+        with open("text/" + file, "r", encoding="UTF-8") as f:
+            text = f.read()
+
+            # Omit the first 11 lines and the last 4 lines, then replace -, _, and #update with spaces.
+            texts.append((file[11:-4].replace('-',' ').replace('_', ' ').replace('#update',''), text))
+
+    # Create a dataframe from the list of texts
+    df = pd.DataFrame(texts, columns = ['fname', 'text'])
+
+    # Set the text column to be the raw text with the newlines removed
+    df['text'] = df.fname + ". " + remove_newlines(df.text)
+
+    if not os.path.exists("processed"):
+        os.mkdir("processed")
+
+    df.to_csv('processed/scraped.csv')
+
+
+def Wrapper(crawler, input, condition_prompt, model_id=None):
+    model = None
+    if model_id == None:
+        model = fine_tune('training_data.jsonl', 'validation_data.jsonl')
+    else:
+        model = model_id
+
     # Load tokenizer
     tokenizer = tiktoken.get_encoding("cl100k_base")
 
     # Read data from the CSV file into a DataFrame
-    df = pd.read_csv(crawler)
+    create_df()
+    df = pd.read_csv('processed/scraped.csv', index_col=0)
+    df.columns = ['title', 'text']
 
     # Check if any text column exists in the DataFrame
     text_columns = [col for col in df.columns if df[col].dtype == 'object']
@@ -130,7 +171,7 @@ def Wrapper(crawler, condition_prompt):
 
         # If the number of tokens is greater than the max number of tokens, split the text into chunks
         if row[1]['n_tokens'] > max_tokens:
-            shortened += split_into_many(row[1]['text'])
+            shortened += split_into_many(tokenizer, row[1]['text'], max_tokens)
 
         # Otherwise, add the text to the list of shortened texts
         else:
@@ -152,6 +193,18 @@ def Wrapper(crawler, condition_prompt):
     df['embeddings'] = df['embeddings'].apply(literal_eval).apply(np.array)
     df.head()
 
-    return conversion(df, model, input="There are lots of obstacles in the way of people with an intellectual disability who want to get and keep a job. These obstacles can be the low expectations that other people have, and not having the same kinds of choices. Big systems, like the NDIS and DES, can also be an obstacle to working in a regular job or having a business. We want to change that.", condition_prompt=condition_prompt, debug=False)
+    return conversion(df, model, input, condition_prompt, debug=False)
 
-print("OPT: ", Wrapper('output.csv', 'make sure all sentences are coherent'))
+print("OPT: ", Wrapper('output.csv', """Inclusion Australia wants a Centre of Excellence in open and self-employment of people with an
+intellectual disability to be set up. We also want to see specialist Disability Employment Services
+organisations in every state and territory, who know about what works to support people with an
+intellectual disability at work.
+Lots of DES don’t know about people with an intellectual disability, or about what works to get a job
+and keep people at work.
+People with an intellectual disability and their families find it hard to get accessible, independent
+information about employment, as well as the NDIS and Centrelink.
+A Centre of Excellence, as well as specialist DES will know what kinds of programs and supports work
+the best for people with an intellectual disability and their families.
+They will make information accessible and available to people with an intellectual disability and their
+families so they can find their way through complicated systems, like the NDIS and Centrelink.
+The Centre of Excellence will use the evidence to make guides about open and self-employment""", '', 'ft:gpt-3.5-turbo-0125:intelife-group::9zFhmfdc'))

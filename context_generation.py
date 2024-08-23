@@ -118,25 +118,18 @@ def extract_text_from_pdf(pdf_path, ignore_small_font=False):
     return " ".join(unique_paragraphs)
 
 
-def write_text_to_csv(text, csv_path, num_columns=4):
-    lines = text.splitlines()
-    
-    # Ensure each row in the CSV has a uniform number of columns
-    rows = [lines[i:i + num_columns] for i in range(0, len(lines), num_columns)]
-    
-    # Write to CSV
-    with open(csv_path, mode='w', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        for row in rows:
-            # Pad the row to ensure uniform column count
-            while len(row) < num_columns:
-                row.append('')
-            writer.writerow(row)
+def write_string_to_file(content, file_name):
+    try:
+        with open(file_name, 'w') as file:
+            file.write(content)
+        print(f"Content successfully written to {file_name}.")
+    except IOError as e:
+        print(f"An error occurred: {e}")
 
 
 if __name__ == "__main__":
     pdf_path = 'test.pdf'  # Replace with your PDF file path
-    csv_path = 'output.csv'  # Replace with your desired CSV output file path
+    txt_path = 'text/output.txt'  # Replace with your desired CSV output file path
     
     text = extract_text_from_pdf(pdf_path, ignore_small_font=False)
-    write_text_to_csv(text, csv_path)
+    write_string_to_file(text, txt_path)
