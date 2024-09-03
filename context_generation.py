@@ -125,11 +125,3 @@ def write_string_to_file(content, file_name):
         print(f"Content successfully written to {file_name}.")
     except IOError as e:
         print(f"An error occurred: {e}")
-
-
-if __name__ == "__main__":
-    pdf_path = 'test.pdf'  # Replace with your PDF file path
-    txt_path = 'text/output.txt'  # Replace with your desired CSV output file path
-    
-    text = extract_text_from_pdf(pdf_path, ignore_small_font=False)
-    write_string_to_file(text, txt_path)
