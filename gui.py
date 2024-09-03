@@ -8,7 +8,7 @@ import threading
 class MainApplication(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("File Selector GUI")
+        self.title("Easy Read Converter Interface")
         self.geometry("800x650")
         
         self.filename = None
@@ -22,7 +22,7 @@ class MainApplication(tk.Tk):
         # Text box for additional instructions
         self.instruction_label = tk.Label(self, text="Input Original Text")
         self.instruction_label.pack()
-        self.instruction_text = tk.Text(self, height=30, width=80)
+        self.instruction_text = tk.Text(self, height=30, width=85)
         self.instruction_text.pack()
 
         # Dropdown menu
@@ -64,7 +64,7 @@ class MainApplication(tk.Tk):
 
     def process_input(self):
         # Call the Wrapper function
-        result = Wrapper(self.user_input, "", model_id='ft:gpt-3.5-turbo-0125:intelife-group::A3CSPadd')
+        result = Wrapper(self.user_input, "", 'ft:gpt-3.5-turbo-0125:intelife-group::A3EN89gL')
 
         # Update the GUI in the main thread
         self.after(0, self.show_result, result)

@@ -77,7 +77,7 @@ def conversion(df, model="gpt-3.5-turbo", input="", condition_prompt='', max_len
     try:
         response = client.chat.completions.create(
             messages=messages,
-            temperature=0,
+            temperature=0.5,
             max_tokens=max_tokens,
             top_p=1,
             frequency_penalty=0,
