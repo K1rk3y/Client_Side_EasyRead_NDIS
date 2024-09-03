@@ -127,7 +127,7 @@ def create_df():
     df.to_csv('processed/scraped.csv')
 
 
-def Wrapper(crawler, input, condition_prompt, model_id=None):
+def Wrapper(input, condition_prompt, model_id=None):
     model = None
     if model_id == None:
         model = fine_tune('training_data.jsonl', 'validation_data.jsonl')
@@ -195,7 +195,7 @@ def Wrapper(crawler, input, condition_prompt, model_id=None):
 
     return conversion(df, model, input, condition_prompt, debug=False)
 
-print("OPT: ", Wrapper('output.csv', """Many people with an intellectual disability rely on the Disability Support Pension (DSP). The rules
+print("OPT: ", Wrapper("""Many people with an intellectual disability rely on the Disability Support Pension (DSP). The rules
 about working and the DSP can discourage people with an intellectual disability from getting a job,
 and from taking on more hours.
 Often, people with an intellectual disability are only offered work in a sheltered workshop, also
@@ -207,4 +207,4 @@ working. Inclusion Australia thinks that should change, and we want people with 
 disability to be able to keep more of the money they earn at work.
 People with an intellectual disability who don’t do what a Disability Employment Service (DES) tells
 them to can have their DSP reduced or stopped. We don’t think this is a good idea, and research says
-that this approach doesn’t help people get a job.""", '', 'ft:gpt-3.5-turbo-0125:intelife-group::9zFhmfdc'))
+that this approach doesn’t help people get a job.""", '', 'ft:gpt-3.5-turbo-0125:intelife-group::A3CSPadd'))
