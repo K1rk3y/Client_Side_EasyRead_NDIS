@@ -54,7 +54,7 @@ def create_context(input, df, max_len=1800, size="ada"):
     return "\n\n###\n\n".join(returns)
 
 
-def conversion(df, model="gpt-3.5-turbo", input="", condition_prompt='', max_len=1800, size="ada", debug=False, max_tokens=200, stop_sequence=None):
+def conversion(df, model="gpt-3.5-turbo", input="", condition_prompt='', max_len=1800, size="ada", debug=False, max_tokens=100, stop_sequence=None):
     context = create_context(input, df, max_len=max_len, size=size)
     
     with open('prompts.jsonl', 'r') as file:
@@ -64,9 +64,9 @@ def conversion(df, model="gpt-3.5-turbo", input="", condition_prompt='', max_len
     system_prompt=f"You are a translator, your role is to translate the input text into easy read format based on BOTH the user input and the context below\nContext: {context}\nAdditional instruction: {condition_prompt}"
     messages = [{"role": "system", "content": system_prompt}]
 
-    for conversation in data["conversations"]:
-        messages.append({"role": "user", "content": conversation["user"]})
-        messages.append({"role": "assistant", "content": conversation["assistant"]})
+    # for conversation in data["conversations"]:
+        # messages.append({"role": "user", "content": conversation["user"]})
+        # messages.append({"role": "assistant", "content": conversation["assistant"]})
 
     messages.append({"role": "user", "content": input})
 
@@ -77,7 +77,7 @@ def conversion(df, model="gpt-3.5-turbo", input="", condition_prompt='', max_len
     try:
         response = client.chat.completions.create(
             messages=messages,
-            temperature=0.5,
+            temperature=0,
             max_tokens=max_tokens,
             top_p=1,
             frequency_penalty=0,

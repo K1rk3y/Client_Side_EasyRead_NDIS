@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog, ttk, messagebox
 from context_generation import extract_text_from_pdf, write_string_to_file
 from translation import Wrapper
+from pdf_generation import replace_pdf_text
 import threading
 
 
@@ -9,7 +10,7 @@ class MainApplication(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Easy Read Converter Interface")
-        self.geometry("800x650")
+        self.geometry("600x450")
         
         self.filename = None
         self.create_widgets()
@@ -22,7 +23,7 @@ class MainApplication(tk.Tk):
         # Text box for additional instructions
         self.instruction_label = tk.Label(self, text="Input Original Text")
         self.instruction_label.pack()
-        self.instruction_text = tk.Text(self, height=30, width=85)
+        self.instruction_text = tk.Text(self, height=10, width=35)
         self.instruction_text.pack()
 
         # Dropdown menu
@@ -53,9 +54,12 @@ class MainApplication(tk.Tk):
 
         pdf_path = self.filename
         txt_path = 'text/output.txt'
-        text = extract_text_from_pdf(pdf_path, ignore_small_font=False)
-        write_string_to_file(text, txt_path)
+        self.text, self.locations = extract_text_from_pdf(pdf_path, ignore_small_font=False)
+        write_string_to_file(" ".join(self.text), txt_path)
 
+        print("SET SIZE: ", len(self.text))
+        print("LOCATION SIZE: ", len(self.locations))
+        
         # Start processing in a separate thread
         threading.Thread(target=self.process_input, daemon=True).start()
 
@@ -63,11 +67,14 @@ class MainApplication(tk.Tk):
         self.show_loading_window()
 
     def process_input(self):
-        # Call the Wrapper function
-        result = Wrapper(self.user_input, "", 'ft:gpt-3.5-turbo-0125:intelife-group::A3EN89gL')
+        results = []
+        for item in list(self.text):
+            results.append(Wrapper(item, "", 'ft:gpt-3.5-turbo-0125:intelife-group::A3EN89gL'))
+
+        replace_pdf_text(self.filename, "output_pdf.pdf", self.locations, results)
 
         # Update the GUI in the main thread
-        self.after(0, self.show_result, result)
+        self.after(0, self.show_result, "\n\n".join(results))
 
     def show_loading_window(self):
         self.loading_window = tk.Toplevel(self)

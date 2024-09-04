@@ -26,6 +26,14 @@ def pair_pdfs(directory):
     return paired_list
 
 
+def non_body_filter(block, page_rect):
+    is_not_header = block['bbox'][1] > page_rect.height * 0.1  # Not in top 10% of page
+    is_not_footer = block['bbox'][3] < page_rect.height * 0.9  # Not in bottom 10% of page
+    is_not_side_margin = (block['bbox'][0] > page_rect.width * 0.1 and 
+                          block['bbox'][2] < page_rect.width * 0.9)  # Not in left/right 10% of page
+    return all([is_not_header, is_not_footer, is_not_side_margin])
+
+
 def remove_newlines(serie):
     serie = serie.replace('\n', ' ').replace('\r', ' ').replace('\\n', ' ')
     return serie
@@ -99,7 +107,6 @@ def extract_text_from_pdf(pdf_path, ignore_small_font=False):
     If ignore_small_font is True, it ignores text below font size 16.
     """
     doc = fitz.open(pdf_path)
-    paragraphs = []
     unique_paragraphs = set()
 
     fsize = most_common_font_size(doc, ignore_small_font)
@@ -114,13 +121,14 @@ def extract_text_from_pdf(pdf_path, ignore_small_font=False):
 
         for block in blocks:
             if block["type"] == 0:  # Type 0 is text
-                for line in block["lines"]:
-                    for span in line["spans"]:
-                        if span["size"] != fsize:
-                            continue
-                        cleaned_text = clean_text(span["text"].strip())
-                        if cleaned_text and not is_unwanted_text(cleaned_text):
-                            current_paragraph.append(cleaned_text)
+                if non_body_filter(block, page.rect):
+                    for line in block["lines"]:
+                        for span in line["spans"]:
+                            if span["size"] != fsize:
+                                continue
+                            cleaned_text = clean_text(span["text"].strip())
+                            if cleaned_text and not is_unwanted_text(cleaned_text):
+                                current_paragraph.append(cleaned_text)
 
             if current_paragraph:
                 paragraph = " ".join(current_paragraph)
