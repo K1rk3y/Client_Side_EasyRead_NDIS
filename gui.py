@@ -1,43 +1,50 @@
-import tkinter as tk
-from tkinter import filedialog, ttk, messagebox
+import customtkinter as ctk
+from tkinter import filedialog, messagebox
 from context_generation import extract_text_from_pdf, write_string_to_file
 from translation import Wrapper
 from pdf_generation import replace_pdf_text
+from context_clustering import group_similar_paragraphs_lda_dynamic, group_similar_paragraphs_dbscan
 import threading
 
 
-class MainApplication(tk.Tk):
+ctk.set_appearance_mode("dark")  # Modes: system (default), light, dark
+ctk.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
+
+class MainApplication(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("Easy Read Converter Interface")
-        self.geometry("600x450")
+        self.geometry("600x350")
         
         self.filename = None
         self.create_widgets()
 
     def create_widgets(self):
+        # Text banner
+        self.banner = ctk.CTkLabel(self, text="Easy Read Converter", font=("Arial", 24, "bold"))
+        self.banner.pack(pady=20)
+
+        self.sub_text = ctk.CTkLabel(self, text="By Cheng Li @2024", font=("Arial", 10))
+        self.sub_text.pack(pady=(10, 0))
+
+        # Frame for buttons
+        button_frame = ctk.CTkFrame(self)
+        button_frame.pack(pady=20)
+
         # File selection button
-        self.file_button = tk.Button(self, text="Select File", command=self.select_file)
-        self.file_button.pack(pady=10)
-
-        # Text box for additional instructions
-        self.instruction_label = tk.Label(self, text="Input Original Text")
-        self.instruction_label.pack()
-        self.instruction_text = tk.Text(self, height=10, width=35)
-        self.instruction_text.pack()
-
-        # Dropdown menu
-        self.option_label = tk.Label(self, text="Select Option:")
-        self.option_label.pack()
-        self.options = ["Blank", "Option 1", "Option 2", "Option 3"]
-        self.selected_option = tk.StringVar(self)
-        self.selected_option.set(self.options[0])
-        self.option_menu = ttk.Combobox(self, textvariable=self.selected_option, values=self.options)
-        self.option_menu.pack()
+        self.file_button = ctk.CTkButton(button_frame, text="Select File", command=self.select_file, width=200, height=40)
+        self.file_button.pack(side="left", padx=10)
 
         # Submit button
-        self.submit_button = tk.Button(self, text="Submit", command=self.submit)
-        self.submit_button.pack(pady=20)
+        self.submit_button = ctk.CTkButton(button_frame, text="Submit", command=self.submit, width=200, height=40)
+        self.submit_button.pack(side="left", padx=10)
+
+        # Dropdown menu
+        self.option_label = ctk.CTkLabel(self, text="Difficulty Options:")
+        self.option_label.pack(pady=(20, 5))
+        self.options = ["Default", "Easy", "Advanced"]
+        self.option_menu = ctk.CTkOptionMenu(self, values=self.options)
+        self.option_menu.pack()
 
     def select_file(self):
         self.filename = filedialog.askopenfilename(title="Select a file")
@@ -49,9 +56,6 @@ class MainApplication(tk.Tk):
             messagebox.showwarning("Warning", "Please select a file before submitting.")
             return
         
-        # Get input
-        self.user_input = self.instruction_text.get("1.0", tk.END).strip()
-
         pdf_path = self.filename
         txt_path = 'text/output.txt'
         self.text, self.locations = extract_text_from_pdf(pdf_path, ignore_small_font=False)
@@ -67,24 +71,29 @@ class MainApplication(tk.Tk):
         self.show_loading_window()
 
     def process_input(self):
-        results = []
-        for item in list(self.text):
-            results.append(Wrapper(item, "", 'ft:gpt-3.5-turbo-0125:intelife-group::A3EN89gL'))
+        # grouped_para = group_similar_paragraphs_lda_dynamic(list(self.text), max_topics=9, min_topics=3, step=3)  # Need experimenting
+        grouped_para = group_similar_paragraphs_dbscan(list(self.text), eps=0.2, min_samples=3, use_transformer=True)   # Need experimenting
+        print("GROUP NUM: ", len(grouped_para))
+        print(grouped_para)
 
-        replace_pdf_text(self.filename, "output_pdf.pdf", self.locations, results)
+        results = []
+        for group in grouped_para:
+            results.append(Wrapper(" ".join(group), "", 'ft:gpt-3.5-turbo-0125:intelife-group::A3EN89gL'))
+
+        # replace_pdf_text(self.filename, "output_pdf.pdf", self.locations, results)
 
         # Update the GUI in the main thread
         self.after(0, self.show_result, "\n\n".join(results))
 
     def show_loading_window(self):
-        self.loading_window = tk.Toplevel(self)
+        self.loading_window = ctk.CTkToplevel(self)
         self.loading_window.title("Processing")
-        self.loading_window.geometry("300x100")
+        self.loading_window.geometry("300x150")
 
-        label = tk.Label(self.loading_window, text="Processing, please wait...")
+        label = ctk.CTkLabel(self.loading_window, text="Processing, please wait...")
         label.pack(pady=20)
 
-        progress_bar = ttk.Progressbar(self.loading_window, mode='indeterminate')
+        progress_bar = ctk.CTkProgressBar(self.loading_window, mode='indeterminate')
         progress_bar.pack(pady=10)
         progress_bar.start()
 
@@ -96,17 +105,17 @@ class MainApplication(tk.Tk):
         # Open the text window with the result
         TextWindow(self, result)
 
-class TextWindow(tk.Toplevel):
+class TextWindow(ctk.CTkToplevel):
     def __init__(self, parent, content):
         super().__init__(parent)
         self.title("Result")
         self.geometry("600x500")
 
-        self.text_widget = tk.Text(self, wrap=tk.WORD, padx=10, pady=10)
-        self.text_widget.pack(expand=True, fill=tk.BOTH)
+        self.text_widget = ctk.CTkTextbox(self, wrap="word")
+        self.text_widget.pack(expand=True, fill="both", padx=10, pady=10)
 
-        self.text_widget.insert(tk.END, content)
-        self.text_widget.config(state=tk.DISABLED)  # Make the text read-only
+        self.text_widget.insert("end", content)
+        self.text_widget.configure(state="disabled")  # Make the text read-only
 
 if __name__ == "__main__":
     app = MainApplication()
