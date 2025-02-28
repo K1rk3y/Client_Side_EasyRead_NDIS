@@ -103,8 +103,8 @@ def cluster_sentences(sentences, config={}):
     # If there is only one group, it's the whole document
     if len(groups) == 1:
         result = list(groups.values())
-        coherence = calculate_coherence_score(sentences, groups, topic_model)
-        return result, coherence
+        # coherence = calculate_coherence_score(sentences, groups, topic_model)
+        return result
     
     # Remove outliers
     groups = {k: v for k, v in groups.items() if k != -1}
