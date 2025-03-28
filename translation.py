@@ -8,11 +8,22 @@ import os
 from dotenv import load_dotenv
 from tqdm import tqdm
 from typing import List, Tuple, Dict, Any, Optional
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
 
 
 load_dotenv()
 api_key = os.getenv('API_KEY')
-client = OpenAI(api_key=api_key)
+openai_client = OpenAI(api_key=api_key)
+
+# Load Qwen model and tokenizer
+model_name = ""
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    torch_dtype=torch.bfloat16,
+    device_map="auto"
+)
 
 
 def split_into_many(tokenizer, text, max_tokens):
@@ -37,7 +48,7 @@ def split_into_many(tokenizer, text, max_tokens):
 
 def get_embedding(text, model="text-embedding-ada-002"):
     text = text.replace("\n", " ")
-    return client.embeddings.create(input=[text], model=model).data[0].embedding
+    return openai_client.embeddings.create(input=[text], model=model).data[0].embedding
 
 
 def create_context(input, df, max_len=1800, size="ada"):
@@ -73,8 +84,7 @@ def get_refinement_criteria() -> str:
     Ensure the improved version of the translation is wrapped in double quotes."""
 
 
-def refine_translation(client: OpenAI, current_text: str, original_input: str, context: str, 
-                        model: str = "gpt-4-turbo") -> Tuple[str, Dict[str, Any]]:
+def refine_translation(current_text: str, original_input: str, context: str) -> Tuple[str, Dict[str, Any]]:
     """Refine the given translation based on evaluation criteria."""
     refinement_prompt = f"""Original Text: {original_input}
 
@@ -87,19 +97,26 @@ def refine_translation(client: OpenAI, current_text: str, original_input: str, c
     {get_refinement_criteria()}"""
 
     try:
-        response = client.chat.completions.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": "You are an expert in converting text to easy-read format while maintaining accuracy and clarity."},
-                {"role": "user", "content": refinement_prompt}
-            ],
-            temperature=0.7,
-            max_tokens=2000
+        messages = [
+            {"role": "system", "content": "You are an expert in converting text to easy-read format while maintaining accuracy and clarity."},
+            {"role": "user", "content": refinement_prompt}
+        ]
+        text = tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True
         )
-        
-        feedback = response.choices[0].message.content
-        improved_text = feedback.split("improved version")[-1].strip()
-        
+        model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
+        generated_ids = model.generate(
+            **model_inputs,
+            max_new_tokens=8000,
+            temperature=0.6
+        )
+        generated_ids = [
+            output_ids[len(input_ids):] for input_ids, output_ids in zip(model_inputs.input_ids, generated_ids)
+        ]
+        feedback = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
+        improved_text = feedback.split("improved version")[-1].strip().strip('"')
         return improved_text, {"full_feedback": feedback}
     
     except Exception as e:
@@ -135,11 +152,9 @@ def create_df():
 def convert_string_to_array(embedding_string):
     """Convert string representation of embedding to numpy array."""
     try:
-        # Remove any trailing commas and cleanup the string
         clean_string = embedding_string.strip('[]').strip()
         if clean_string.endswith(','):
             clean_string = clean_string[:-1]
-        # Convert to list of floats
         return np.array([float(x.strip()) for x in clean_string.split(',')])
     except Exception as e:
         print(f"Error converting embedding: {e}")
@@ -151,16 +166,13 @@ def prepare_embeddings_df():
     if os.path.exists('embeddings.csv'):
         df = pd.read_csv('embeddings.csv', index_col=0)
         if 'embeddings' in df.columns:
-            # Safely convert string embeddings to numpy arrays
             df['embeddings'] = df['embeddings'].apply(convert_string_to_array)
         return df
     
-    # If embeddings.csv doesn't exist, create it
     tokenizer = tiktoken.get_encoding("cl100k_base")
     df = create_df()
     df.columns = ['title', 'text']
     
-    # Process text and create embeddings
     df['n_tokens'] = df['text'].apply(lambda x: len(tokenizer.encode(x)))
     max_tokens = 1000
     
@@ -177,52 +189,52 @@ def prepare_embeddings_df():
     df['n_tokens'] = df.text.apply(lambda x: len(tokenizer.encode(x)))
     df['embeddings'] = df.text.apply(lambda x: get_embedding(x))
     
-    # Save embeddings as JSON strings to preserve format
     df.to_csv('embeddings.csv')
     return df
 
 
-def iterative_translation(input_text: str, n_iterations: int = 3, 
-                         model: str = "gpt-4-turbo") -> List[Tuple[str, Dict[str, Any]]]:
-    # Prepare embeddings DataFrame
+def iterative_translation(input_text: str, n_iterations: int = 1) -> List[Tuple[str, Dict[str, Any]]]:
     df = prepare_embeddings_df() if not os.path.exists('embeddings.csv') else pd.read_csv('embeddings.csv', index_col=0)
     if 'embeddings' in df.columns:
         df['embeddings'] = df['embeddings'].apply(literal_eval).apply(np.array)
     
-    # Get context for the translation
     context = create_context(input_text, df)
-
-    input_text = "User input: " + input_text + "\nContext: {context}"
+    input_text_with_context = f"User input: {input_text}\nContext: {context}"
     
-    # Initial translation
-    system_prompt = f"You are a translator, your role is to translate the user input text into easy read format based on BOTH the user input and the context."
+    system_prompt = "You are a translator, your role is to translate the user input text into easy read format based on BOTH the user input and the context."
     
     try:
-        response = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": input_text}
-            ],
-            temperature=0,
-            max_tokens=2000,
-            model=model
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": input_text_with_context}
+        ]
+        text = tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True
         )
-        current_text = response.choices[0].message.content
+        model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
+        generated_ids = model.generate(
+            **model_inputs,
+            max_new_tokens=8000,
+            temperature=0.6
+        )
+        generated_ids = [
+            output_ids[len(input_ids):] for input_ids, output_ids in zip(model_inputs.input_ids, generated_ids)
+        ]
+        current_text = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
     except Exception as e:
         print(f"Error in initial translation: {str(e)}")
         return []
     
     results = [(current_text, {"stage": "initial"})]
     
-    # Refinement loop
     for i in tqdm(range(n_iterations), desc="Refining translation"):
         try:
             refined_text, feedback = refine_translation(
-                client=client,
                 current_text=current_text,
-                original_input=input_text,
-                context=context,
-                model=model
+                original_input=input_text_with_context,
+                context=context
             )
             
             results.append((refined_text, {
@@ -246,7 +258,6 @@ def save_refinement_history(results: List[Tuple[str, Dict[str, Any]]], filename:
         for i, (text, metadata) in enumerate(results):
             f.write(f"\n--- Stage: {metadata['stage']} ---\n")
             
-            # Check each line in the text for quotes
             for line in text.split('\n'):
                 line = line.strip()
                 if line.startswith('"') and line.endswith('"'):
@@ -259,7 +270,6 @@ def save_refinement_history(results: List[Tuple[str, Dict[str, Any]]], filename:
                 feedback = metadata["feedback"]["full_feedback"]
                 f.write(feedback + "\n")
                 
-                # Also check feedback for quoted lines
                 for line in feedback.split('\n'):
                     line = line.strip()
                     if line.startswith('"') and line.endswith('"'):
@@ -271,8 +281,6 @@ def save_refinement_history(results: List[Tuple[str, Dict[str, Any]]], filename:
 
 
 def translate(input_text):
-    # Run iterative translation
     results = iterative_translation(input_text, n_iterations=3)
     opt = save_refinement_history(results)
-
     return opt
