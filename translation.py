@@ -74,21 +74,18 @@ def create_context(input, df, max_len=1800):
 
 def get_refinement_criteria() -> str:
     return """Please evaluate the translation based on the following criteria:
-    1. Clarity: Is the easy-read translation clear and really simple to understand?
-    2. Accuracy: Does it maintain the original meaning while being simpler?
-    3. Readability: Is it structured in a way that's easy to follow?
-    4. Consistency: Is the simplification level consistent throughout?
-    5. Intraclass separation: Although each sentence in the translation have the same background meaning, do
-    they still have enough separation between them so that each sentence can repersent a (trivial) sub-concept?
-    6. Length: Each sub-concept must only have one corresponding sentence and the sub-concept themselves must be important enough to be included. Is the number of sentences too many and can be reduced?
-    7. Format: Is the resulting translation in plain sentences that are period seprated and in one paragraph only (no dot points, no colon, etc)?
+    1. Is the easy-read translation clear and really simple to understand? 
+    2. Have you replaced the use of multi-syllable words?
+    3. Does it maintain the original meaning while being simpler?
+    4. Is it structured in a way that's easy to follow?
+    5. Is the simplification level consistent throughout?
+    6. Although each sentence in the translation have the same background meaning, do they still have enough separation between them so that each sentence can repersent a meaningful sub-concept?
+    7. Each sub-concept must only have one corresponding sentence and the sub-concept themselves must be important enough to be included. Is the number of sentences too many and can be reduced?
+    8. Imagine you are a human reader and the target audience of this text, what are the important points in this text that is reasonably relevant to you? Can the sentences that does not contain these points be removed?
+    9. Is the resulting translation in plain sentences that are period seprated and in one paragraph only (no dot points, no colon, etc)? 
 
-    For each criterion, provide:
-    - A score (1-5)
-    - Specific issues identified
-    - Suggested improvements
-
-    Then, provide an improved version of the translation that addresses these issues.
+    Then, provide an improved version of the translation that addresses the issues.
+    Ensure that among the imporved outputs, there are no sentences with duplicating meaning of others.
     Ensure the improved version of the translation is wrapped in double quotes."""
 
 
