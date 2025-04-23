@@ -1,3 +1,7 @@
+@import url('navigation.css');
+@import url('auth.css');
+
+
 *, ::before, ::after {
   --tw-border-spacing-x: 0;
   --tw-border-spacing-y: 0;

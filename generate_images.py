@@ -6,14 +6,14 @@ from PIL import Image  # used to print and edit images
 from io import BytesIO
 from dotenv import load_dotenv
 
-"""load_dotenv()
-api_key = os.getenv('API_KEY')
-client = OpenAI(api_key=api_key)"""
+load_dotenv()
+api_key = os.getenv('API_KEY_O')
+client = OpenAI(api_key=api_key)
 
 # Set a directory to save DALL-E images to
 image_dir = "app/static/images"
 
-"""# Function to generate images from a list of prompts
+# Function to generate images from a list of prompts
 def generate_images_from_prompts(prompts, progress_callback=None):
     images = []
     docx = []
@@ -21,7 +21,9 @@ def generate_images_from_prompts(prompts, progress_callback=None):
 
     for i, base_prompt in enumerate(prompts):
         # Engineer the prompt
-        engineered_prompt = translate(base_prompt) + " Style: photorealistic."
+        engineered_prompt = translate(base_prompt)
+
+        print(engineered_prompt)
 
         # Generate the image using the OpenAI API
         generation_response = client.images.generate(
@@ -56,57 +58,4 @@ def generate_images_from_prompts(prompts, progress_callback=None):
         if progress_callback:
             progress_callback(i +1, total_prompts)
 
-    return images, docx"""
-
-
-from PIL import Image, ImageDraw
-import os
-import random
-from io import BytesIO
-import time
-
-def generate_images_from_prompts(prompts, progress_callback=None):
-    images = []
-    docx = []
-    total_prompts = len(prompts)
-    
-    # Colors for dummy images
-    colors = [
-        (255, 0, 0),    # Red
-        (0, 255, 0),    # Green
-        (0, 0, 255),    # Blue
-        (255, 255, 0),  # Yellow
-        (255, 0, 255),   # Magenta
-        (0, 255, 255),   # Cyan
-    ]
-    
-    for i, base_prompt in enumerate(prompts):
-        # Simulate some processing time
-        time.sleep(0.5)
-        
-        # Create a dummy image (512x512 solid color with text)
-        img = Image.new('RGB', (512, 512), color=random.choice(colors))
-        draw = ImageDraw.Draw(img)
-        
-        # Add text to the image
-        text = f"Dummy Image\n{i+1}/{len(prompts)}\n{base_prompt[:30]}..."
-        draw.text((10, 10), text, fill=(0, 0, 0))
-        
-        # Define a unique name for each generated image
-        generated_image_name = f"section_{i}.jpg"
-        generated_image_filepath = os.path.join(image_dir, generated_image_name)
-        
-        # Save the image
-        img.save(generated_image_filepath)
-        
-        # Simulate the engineered prompt
-        engineered_prompt = f"Dummy prompt for: {base_prompt}"
-        
-        images.append((engineered_prompt, generated_image_filepath))
-        docx.append({'image_path': generated_image_filepath, 'text': base_prompt})
-        
-        # Update the progress
-        if progress_callback:
-            progress_callback(i + 1, total_prompts)
-    
     return images, docx

@@ -8,4 +8,13 @@
 </head>
 <body>
     {% block content %}{% endblock %}
+    <nav>
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('index.logout') }}">Logout</a>
+            <a href="{{ url_for('index.process') }}">Home</a>
+        {% else %}
+            <a href="{{ url_for('index.login') }}">Login</a>
+            <a href="{{ url_for('index.signup') }}">Sign Up</a>
+        {% endif %}
+    </nav>
 </body>
