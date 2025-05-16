@@ -49,6 +49,8 @@ watchdog = ">=4.0"
 # Web
 Flask = "==3.1.0"
 Flask-WTF = "==1.2.2"
+flask_sqlalchemy = "*"
+flask_login = "*"
 
 # Date & Time
 python-dateutil = ">=2.9"
