@@ -181,6 +181,7 @@ pydantic = ">=2.7"
 omegaconf = ">=2.3"
 iopath = ">=0.1"
 open-clip-torch = "^2.32.0"
+email-validator = "^2.2.0"
 
 [build-system]
 requires = ["poetry-core>=1.9.0", "setuptools>=68.0.0"]

@@ -10,12 +10,9 @@ from dotenv import load_dotenv
 from tqdm import tqdm
 from typing import List, Tuple, Dict, Any, Optional
 
-
-# Load environment variables
 load_dotenv()
 api_key = os.getenv('API_KEY')
 
-# Initialize clients
 client = OpenAI(
     api_key=api_key,
     base_url="https://api.lambdalabs.com/v1"
@@ -109,7 +106,7 @@ def refine_translation(client: OpenAI, current_text: str, original_input: str, c
                 {"role": "system", "content": "You are an expert in converting text to easy-read format while maintaining accuracy and clarity."},
                 {"role": "user", "content": refinement_prompt}
             ],
-            temperature=0.7,
+            temperature=0,
             max_tokens=2000
         )
         
@@ -200,7 +197,7 @@ def iterative_translation(input_text: str, n_iterations: int = 1,
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": input_text}
             ],
-            temperature=0,
+            temperature=0.7,
             max_tokens=2000,
             model=model
         )
@@ -271,5 +268,6 @@ def translate(input_text):
     # Run iterative translation
     results = iterative_translation(input_text, n_iterations=1)
     opt = save_refinement_history(results)
+    print("TRANSLATION: ", opt)
 
     return opt

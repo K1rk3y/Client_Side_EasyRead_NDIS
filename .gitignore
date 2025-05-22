@@ -175,7 +175,6 @@ node_modules/
 **/.DS_Store
 
 app/files/*
-app/static/images/*
 app/static/pdf/*
 app/static/pdf2image/*
 
