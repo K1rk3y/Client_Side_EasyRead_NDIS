@@ -47,6 +47,7 @@ def extract_last_quoted(text: str) -> str | None:
 
 def translate(input_text):
     results = refine_translation(current_text=input_text)
+    print("RESULTS: ", results)
     opt = extract_last_quoted(results)
 
     return opt

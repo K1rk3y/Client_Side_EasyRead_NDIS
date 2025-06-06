@@ -1,9 +1,40 @@
 .env
 embeddings.csv
 clip_feature/first_step/sam_vit_h_4b8939.pth
-clips
-images
-masks
+translation_history.txt
+
+app/text/*
+!app/text/.gitkeep
+
+clips/*
+!clips/.gitkeep
+
+images/*
+!images/.gitkeep
+
+masks/*
+!masks/.gitkeep
+
+processed/*
+!processed/.gitkeep
+
+app/static/images/*
+!app/static/images/.gitkeep
+
+app/static/uploads/*
+!app/static/uploads/.gitkeep
+
+app/files/*
+!app/files/.gitkeep
+
+app/static/pdf/*
+!app/static/pdf/.gitkeep
+
+app/static/pdf2image/*
+!app/static/pdf2image/.gitkeep
+
+app/static/docx/*
+!app/static/docx/.gitkeep
 
 # Byte-compiled / optimized / DLL files
 **/__pycache__/
@@ -173,9 +204,3 @@ node_modules/
 
 # macOS system files
 **/.DS_Store
-
-app/files/*
-app/static/pdf/*
-app/static/pdf2image/*
-
-translation_history.txt

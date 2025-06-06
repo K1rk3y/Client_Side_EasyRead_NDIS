@@ -1,5 +1,4 @@
 from app import create_app
-import webbrowser
 
 app = create_app('config.Config')
 

@@ -1,5 +1,5 @@
 import os
-from entity_rec import translate
+from core.entity_rec import translate
 from PIL import Image
 import torch
 import open_clip

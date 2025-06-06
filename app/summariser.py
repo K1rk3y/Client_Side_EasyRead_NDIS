@@ -1,14 +1,14 @@
-from context_generation import extract, preprocess
-from context_clustering import cluster_sentences
-from translation import translate
+from core.context_generation import extract, preprocess
+from core.context_clustering import cluster_sentences
+from core.translation import translate
 import os
 
-
+# Essential Function
 def split_into_sentences(text):
     sentences = [sentence.strip() + '.' for sentence in text[1:].split('.') if sentence.strip()][:-1]
     return sentences
 
-
+# Essential Function
 def summarise(pdf_path):
     extracted_text = extract(pdf_path)
     preprocessed_text = preprocess(extracted_text)
