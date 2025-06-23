@@ -21,7 +21,9 @@ def main():
 
     torch.autograd.set_grad_enabled(False)
 
-    sam = sam_model_registry["vit_h"](checkpoint=Path("clip_feature/first_step/sam_vit_h_4b8939.pth"))
+    sam = sam_model_registry["vit_h"](
+        checkpoint=Path("clip_feature/first_step/sam_vit_h_4b8939.pth")
+    )
     sam.to(device="cuda")
     mask_generator = SamAutomaticMaskGenerator(
         model=sam,

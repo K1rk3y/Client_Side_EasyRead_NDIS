@@ -25,7 +25,12 @@ def get_bbox_around_mask(mask):
     else:
         topleft = nonzero_inds.min(0)[0]  # (2,)
         botright = nonzero_inds.max(0)[0]  # (2,)
-        bbox = (topleft[0].item(), topleft[1].item(), botright[0].item(), botright[1].item())  # (x0, y0, x1, y1)
+        bbox = (
+            topleft[0].item(),
+            topleft[1].item(),
+            botright[0].item(),
+            botright[1].item(),
+        )  # (x0, y0, x1, y1)
     # x0, y0, x1, y1
     return bbox, nonzero_inds
 
@@ -37,7 +42,9 @@ if __name__ == "__main__":
     OPENCLIP_MODEL = "ViT-L-14"  # "ViT-bigG-14"
     OPENCLIP_DATA = "laion2b_s32b_b82k"  # "laion2b_s39b_b160k"
     print("Initializing model...")
-    model, _, preprocess = open_clip.create_model_and_transforms(OPENCLIP_MODEL, OPENCLIP_DATA)
+    model, _, preprocess = open_clip.create_model_and_transforms(
+        OPENCLIP_MODEL, OPENCLIP_DATA
+    )
     model.visual.output_tokens = True
     model.cuda()
     model.eval()
@@ -55,8 +62,12 @@ if __name__ == "__main__":
 
         for file in os.listdir(os.path.join(args.mask_dir_path, scene)):
             try:
-                INPUT_IMAGE_PATH = os.path.join(args.scene_dir_path, scene, file.replace(".pt", ".png"))
-                SEMIGLOBAL_FEAT_SAVE_FILE = os.path.join(args.save_dir_path, scene, file)
+                INPUT_IMAGE_PATH = os.path.join(
+                    args.scene_dir_path, scene, file.replace(".pt", ".png")
+                )
+                SEMIGLOBAL_FEAT_SAVE_FILE = os.path.join(
+                    args.save_dir_path, scene, file
+                )
                 if os.path.isfile(SEMIGLOBAL_FEAT_SAVE_FILE):
                     continue
 
@@ -69,19 +80,27 @@ if __name__ == "__main__":
                 """
                 global_feat = None
                 with torch.cuda.amp.autocast():
-                    _img = preprocess(Image.open(INPUT_IMAGE_PATH)).unsqueeze(0)  # [1, 3, 224, 224]
-                    imgfeat = model.visual(_img.cuda())[1]  # All image token feat [1, 256, 1024]
+                    _img = preprocess(Image.open(INPUT_IMAGE_PATH)).unsqueeze(
+                        0
+                    )  # [1, 3, 224, 224]
+                    imgfeat = model.visual(_img.cuda())[
+                        1
+                    ]  # All image token feat [1, 256, 1024]
                     imgfeat = torch.mean(imgfeat, dim=1)
 
                 global_feat = imgfeat.half().cuda()
 
-                global_feat = torch.nn.functional.normalize(global_feat, dim=-1)  # --> (1, 1024)
+                global_feat = torch.nn.functional.normalize(
+                    global_feat, dim=-1
+                )  # --> (1, 1024)
                 FEAT_DIM = global_feat.shape[-1]
 
                 cosine_similarity = torch.nn.CosineSimilarity(dim=-1)
 
                 MASK_LOAD_FILE = os.path.join(args.mask_dir_path, scene, file)
-                outfeat = torch.zeros(LOAD_IMG_HEIGHT, LOAD_IMG_WIDTH, FEAT_DIM, dtype=torch.half)
+                outfeat = torch.zeros(
+                    LOAD_IMG_HEIGHT, LOAD_IMG_WIDTH, FEAT_DIM, dtype=torch.half
+                )
 
                 mask = torch.load(MASK_LOAD_FILE).unsqueeze(0)  # 1, num_masks, H, W
                 num_masks = mask.shape[-3]
@@ -108,7 +127,9 @@ if __name__ == "__main__":
                         img_roi = image[x0:x1, y0:y1]
                         img_roi = Image.fromarray(img_roi.detach().cpu().numpy())
                         img_roi = preprocess(img_roi).unsqueeze(0).cuda()
-                        roifeat = model.visual(img_roi)[1]  # All image token feat [1, 256, 1024]
+                        roifeat = model.visual(img_roi)[
+                            1
+                        ]  # All image token feat [1, 256, 1024]
                         roifeat = torch.mean(roifeat, dim=1)
 
                         feat_per_roi.append(roifeat)
@@ -121,7 +142,9 @@ if __name__ == "__main__":
 
                 rois = torch.stack(rois)
                 scores = torch.cat(roi_sim_per_unit_area).to(rois.device)
-                retained = torchvision.ops.nms(rois.float().cpu(), scores.float().cpu(), iou_threshold=1.0)
+                retained = torchvision.ops.nms(
+                    rois.float().cpu(), scores.float().cpu(), iou_threshold=1.0
+                )
                 feat_per_roi = torch.cat(feat_per_roi, dim=0)  # N, 1024
 
                 retained_rois = rois[retained]
@@ -129,34 +152,56 @@ if __name__ == "__main__":
                 retained_feat = feat_per_roi[retained]
                 retained_nonzero_inds = []
                 for _roiidx in range(retained.shape[0]):
-                    retained_nonzero_inds.append(roi_nonzero_inds[retained[_roiidx].item()])
+                    retained_nonzero_inds.append(
+                        roi_nonzero_inds[retained[_roiidx].item()]
+                    )
 
                 mask_sim_mat = torch.nn.functional.cosine_similarity(
                     retained_feat[:, :, None], retained_feat.t()[None, :, :]
                 )
                 mask_sim_mat.fill_diagonal_(0.0)
-                mask_sim_mat = mask_sim_mat.mean(1)  # avg sim of each mask with each other mask
+                mask_sim_mat = mask_sim_mat.mean(
+                    1
+                )  # avg sim of each mask with each other mask
                 softmax_scores = retained_scores.cuda() - mask_sim_mat
                 softmax_scores = torch.nn.functional.softmax(softmax_scores, dim=0)
                 for _roiidx in range(retained.shape[0]):
                     _weighted_feat = (
-                        softmax_scores[_roiidx] * global_feat + (1 - softmax_scores[_roiidx]) * retained_feat[_roiidx]
+                        softmax_scores[_roiidx] * global_feat
+                        + (1 - softmax_scores[_roiidx]) * retained_feat[_roiidx]
                     )
-                    _weighted_feat = torch.nn.functional.normalize(_weighted_feat, dim=-1)
-                    outfeat[retained_nonzero_inds[_roiidx][:, 0], retained_nonzero_inds[_roiidx][:, 1]] += (
+                    _weighted_feat = torch.nn.functional.normalize(
+                        _weighted_feat, dim=-1
+                    )
+                    outfeat[
+                        retained_nonzero_inds[_roiidx][:, 0],
+                        retained_nonzero_inds[_roiidx][:, 1],
+                    ] += (
                         _weighted_feat[0].detach().cpu().half()
                     )
                     outfeat[
-                        retained_nonzero_inds[_roiidx][:, 0], retained_nonzero_inds[_roiidx][:, 1]
+                        retained_nonzero_inds[_roiidx][:, 0],
+                        retained_nonzero_inds[_roiidx][:, 1],
                     ] = torch.nn.functional.normalize(
-                        outfeat[retained_nonzero_inds[_roiidx][:, 0], retained_nonzero_inds[_roiidx][:, 1]].float(),
+                        outfeat[
+                            retained_nonzero_inds[_roiidx][:, 0],
+                            retained_nonzero_inds[_roiidx][:, 1],
+                        ].float(),
                         dim=-1,
                     ).half()
 
-                outfeat = outfeat.unsqueeze(0).float()  # interpolate is not implemented for float yet in pytorch
-                outfeat = outfeat.permute(0, 3, 1, 2)  # 1, H, W, feat_dim -> 1, feat_dim, H, W
-                outfeat = torch.nn.functional.interpolate(outfeat, [512, 512], mode="nearest")
-                outfeat = outfeat.permute(0, 2, 3, 1)  # 1, feat_dim, H, W --> 1, H, W, feat_dim
+                outfeat = outfeat.unsqueeze(
+                    0
+                ).float()  # interpolate is not implemented for float yet in pytorch
+                outfeat = outfeat.permute(
+                    0, 3, 1, 2
+                )  # 1, H, W, feat_dim -> 1, feat_dim, H, W
+                outfeat = torch.nn.functional.interpolate(
+                    outfeat, [512, 512], mode="nearest"
+                )
+                outfeat = outfeat.permute(
+                    0, 2, 3, 1
+                )  # 1, feat_dim, H, W --> 1, H, W, feat_dim
                 outfeat = torch.nn.functional.normalize(outfeat, dim=-1)
                 outfeat = outfeat[0].half()  # --> H, W, feat_dim
 

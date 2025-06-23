@@ -8,17 +8,21 @@ from collections import defaultdict, Counter
 def pair_pdfs(directory):
     # Create a dictionary to store the pairs based on the index
     pairs = defaultdict(list)
-    
+
     # List all files in the directory
     for filename in os.listdir(directory):
-        if filename.endswith('.pdf'):
+        if filename.endswith(".pdf"):
             # Split the filename to extract the index and order
-            parts = filename.split('_')
-            if len(parts) == 3 and parts[0] == "ER" and parts[2].split('.')[0] in {"0", "1"}:
+            parts = filename.split("_")
+            if (
+                len(parts) == 3
+                and parts[0] == "ER"
+                and parts[2].split(".")[0] in {"0", "1"}
+            ):
                 index = parts[1]
-                order = int(parts[2].split('.')[0])
+                order = int(parts[2].split(".")[0])
                 pairs[index].append((order, filename))
-    
+
     # Sort the files by the order (0 first, 1 second) and return the 2D list
     paired_list = [sorted(pairs[index]) for index in sorted(pairs)]
     paired_list = [[file1[1], file2[1]] for file1, file2 in paired_list]
@@ -27,15 +31,19 @@ def pair_pdfs(directory):
 
 
 def non_body_filter(block, page_rect):
-    is_not_header = block['bbox'][1] > page_rect.height * 0.1  # Not in top 10% of page
-    is_not_footer = block['bbox'][3] < page_rect.height * 0.9  # Not in bottom 10% of page
-    is_not_side_margin = (block['bbox'][0] > page_rect.width * 0.1 and 
-                          block['bbox'][2] < page_rect.width * 0.9)  # Not in left/right 10% of page
+    is_not_header = block["bbox"][1] > page_rect.height * 0.1  # Not in top 10% of page
+    is_not_footer = (
+        block["bbox"][3] < page_rect.height * 0.9
+    )  # Not in bottom 10% of page
+    is_not_side_margin = (
+        block["bbox"][0] > page_rect.width * 0.1
+        and block["bbox"][2] < page_rect.width * 0.9
+    )  # Not in left/right 10% of page
     return all([is_not_header, is_not_footer, is_not_side_margin])
 
 
 def remove_newlines(serie):
-    serie = serie.replace('\n', ' ').replace('\r', ' ').replace('\\n', ' ')
+    serie = serie.replace("\n", " ").replace("\r", " ").replace("\\n", " ")
     return serie
 
 
@@ -57,8 +65,13 @@ def is_unwanted_text(line):
     """
     # Patterns that typically indicate metadata, headers, or footers
     unwanted_patterns = [
-        r"owner gm", r"authoriser gm", r"uncontrolled when printed", r"page \d+ of \d+",
-        r"version \d+", r"issue date", r"review date"
+        r"owner gm",
+        r"authoriser gm",
+        r"uncontrolled when printed",
+        r"page \d+ of \d+",
+        r"version \d+",
+        r"issue date",
+        r"review date",
     ]
     for pattern in unwanted_patterns:
         if re.search(pattern, line.lower()):
@@ -151,30 +164,39 @@ def create_jsonl(doc1, doc2, output_file):
     """
     Creates a JSONL file with the specified structure and writes it to output_file.
     """
-    data = {"messages": [{"role": "system", "content": "You are a translator, your role is to translate the input text into easy read format based on the user input."},{"role": "user", "content": doc1},{"role": "assistant", "content": doc2}]}
-    
-    with open(output_file, 'a', encoding='utf-8') as f:
+    data = {
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a translator, your role is to translate the input text into easy read format based on the user input.",
+            },
+            {"role": "user", "content": doc1},
+            {"role": "assistant", "content": doc2},
+        ]
+    }
+
+    with open(output_file, "a", encoding="utf-8") as f:
         f.write(json.dumps(data, ensure_ascii=False) + "\n")
 
 
 def main():
     # Example usage
-    directory_path = 'dir'  # Replace with your directory path
+    directory_path = "dir"  # Replace with your directory path
     pdf_pairs = pair_pdfs(directory_path)
 
     for path in pdf_pairs:
         # Replace these with the paths to your PDF files
         pdf1_path = "dir/" + path[0]
         pdf2_path = "dir/" + path[1]
-        
+
         # Extract paragraphs from both PDFs
         doc1_text = extract_text_from_pdf(pdf1_path, ignore_small_font=False)
         doc2_text = extract_text_from_pdf(pdf2_path, ignore_small_font=True)
-        
+
         # Create the JSONL file
         output_file = "training_data.jsonl"
         create_jsonl(doc1_text, doc2_text, output_file)
-        
+
         print(f"JSONL file created: {output_file}")
 
 

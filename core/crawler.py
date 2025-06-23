@@ -8,10 +8,11 @@ from urllib.parse import urlparse
 import os
 
 # Regex pattern to match a URL
-HTTP_URL_PATTERN = r'^http[s]*://.+'
+HTTP_URL_PATTERN = r"^http[s]*://.+"
 
-domain = "openai.com" # <- put your domain to be crawled
-full_url = "https://openai.com/" # <- put your domain to be crawled with https or http
+domain = "openai.com"  # <- put your domain to be crawled
+full_url = "https://openai.com/"  # <- put your domain to be crawled with https or http
+
 
 # Create a class to parse the HTML and get the hyperlinks
 class HyperlinkParser(HTMLParser):
@@ -28,6 +29,7 @@ class HyperlinkParser(HTMLParser):
         if tag == "a" and "href" in attrs:
             self.hyperlinks.append(attrs["href"])
 
+
 # Function to get the hyperlinks from a URL
 def get_hyperlinks(url):
 
@@ -37,11 +39,11 @@ def get_hyperlinks(url):
         with urllib.request.urlopen(url) as response:
 
             # If the response is not HTML, return an empty list
-            if not response.info().get('Content-Type').startswith("text/html"):
+            if not response.info().get("Content-Type").startswith("text/html"):
                 return []
 
             # Decode the HTML
-            html = response.read().decode('utf-8')
+            html = response.read().decode("utf-8")
     except Exception as e:
         print(e)
         return []
@@ -95,24 +97,28 @@ def crawl(url):
 
     # Create a directory to store the text files
     if not os.path.exists("text/"):
-            os.mkdir("text/")
+        os.mkdir("text/")
 
-    if not os.path.exists("text/"+local_domain+"/"):
-            os.mkdir("text/" + local_domain + "/")
+    if not os.path.exists("text/" + local_domain + "/"):
+        os.mkdir("text/" + local_domain + "/")
 
     # Create a directory to store the csv files
     if not os.path.exists("processed"):
-            os.mkdir("processed")
+        os.mkdir("processed")
 
     # While the queue is not empty, continue crawling
     while queue:
 
         # Get the next URL from the queue
         url = queue.pop()
-        print(url) # for debugging and to see the progress
+        print(url)  # for debugging and to see the progress
 
         # Save text from the url to a <url>.txt file
-        with open('text/'+local_domain+'/'+url[8:].replace("/", "_") + ".txt", "w", encoding="UTF-8") as f:
+        with open(
+            "text/" + local_domain + "/" + url[8:].replace("/", "_") + ".txt",
+            "w",
+            encoding="UTF-8",
+        ) as f:
 
             # Get the text from the URL using BeautifulSoup
             soup = BeautifulSoup(requests.get(url).text, "html.parser")
@@ -121,8 +127,10 @@ def crawl(url):
             text = soup.get_text()
 
             # If the crawler gets to a page that requires JavaScript, it will stop the crawl
-            if ("You need to enable JavaScript to run this app." in text):
-                print("Unable to parse page " + url + " due to JavaScript being required")
+            if "You need to enable JavaScript to run this app." in text:
+                print(
+                    "Unable to parse page " + url + " due to JavaScript being required"
+                )
 
             # Otherwise, write the text to the file in the text directory
             f.write(text)
@@ -132,5 +140,6 @@ def crawl(url):
             if link not in seen:
                 queue.append(link)
                 seen.add(link)
+
 
 crawl(full_url)

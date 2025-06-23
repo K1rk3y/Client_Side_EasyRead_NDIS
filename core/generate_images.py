@@ -7,7 +7,7 @@ import os
 
 save_dir = "app/static/images"
 image_dir = "images/pilot/"
-clip_dir = 'clips/pilot/'
+clip_dir = "clips/pilot/"
 
 
 def generate_images_from_prompts(prompts, progress_callback=None):
@@ -18,11 +18,17 @@ def generate_images_from_prompts(prompts, progress_callback=None):
     OPENCLIP_MODEL = "ViT-L-14"
     OPENCLIP_DATA = "laion2b_s32b_b82k"
     print("Initializing model...")
-    model, _, preprocess = open_clip.create_model_and_transforms(OPENCLIP_MODEL, OPENCLIP_DATA)
+    model, _, preprocess = open_clip.create_model_and_transforms(
+        OPENCLIP_MODEL, OPENCLIP_DATA
+    )
     model.eval()
     tokenizer = open_clip.get_tokenizer(OPENCLIP_MODEL)
 
-    image_paths = [os.path.join(clip_dir, f) for f in sorted(os.listdir(clip_dir)) if f.endswith('.pt')]
+    image_paths = [
+        os.path.join(clip_dir, f)
+        for f in sorted(os.listdir(clip_dir))
+        if f.endswith(".pt")
+    ]
 
     image_features_list = []
     for path in image_paths:
@@ -30,7 +36,9 @@ def generate_images_from_prompts(prompts, progress_callback=None):
         feat = torch.load(path).unsqueeze(0)  # Add batch dimension
         pooled_features = feat.mean(dim=(1, 2))  # Average pool spatial dimensions
         pooled_features = pooled_features.to(model.visual.proj.dtype)
-        image_feat = pooled_features @ model.visual.proj  # Project to joint space
+        print("pooled_features shape:", pooled_features.shape)
+        print("proj shape:", model.visual.proj.shape)
+        image_feat = pooled_features @ model.visual.proj.T  # Project to joint space
         image_features_list.append(image_feat)
 
     image_features = torch.cat(image_features_list, dim=0)
@@ -44,11 +52,14 @@ def generate_images_from_prompts(prompts, progress_callback=None):
         with torch.no_grad(), torch.autocast("cuda"):
             # Encode text
             text_features = model.encode_text(text)
-            
+
             # Normalize features
             image_features_temp = image_features.to(text_features.dtype)
             image_features_temp /= image_features_temp.norm(dim=-1, keepdim=True)
             text_features /= text_features.norm(dim=-1, keepdim=True)
+
+            # Project text features to the same space as image features
+            text_features = text_features @ model.visual.proj.T
 
             # Calculate similarity scores and softmax probabilities
             similarity_scores = 100.0 * (image_features_temp @ text_features.T)
@@ -57,11 +68,11 @@ def generate_images_from_prompts(prompts, progress_callback=None):
         sorted_pairs = sorted(
             zip(image_paths, image_probs),
             key=lambda x: x[1].item(),  # sort by the tensor’s scalar value
-            reverse=True
+            reverse=True,
         )
-        
+
         base, _ = os.path.splitext(os.path.basename(sorted_pairs[0][0]))
-        filename = base + '.png'
+        filename = base + ".png"
 
         img = Image.open(os.path.join(image_dir, filename))
 
@@ -74,12 +85,12 @@ def generate_images_from_prompts(prompts, progress_callback=None):
 
         # Save the resized image
         img.save(generated_image_filepath)
-        
+
         images.append((engineered_prompt, generated_image_filepath))
-        docx.append({'image_path':generated_image_filepath, 'text': base_prompt})
-        
+        docx.append({"image_path": generated_image_filepath, "text": base_prompt})
+
         # Update the progress
         if progress_callback:
-            progress_callback(i +1, total_prompts)
+            progress_callback(i + 1, total_prompts)
 
     return images, docx
