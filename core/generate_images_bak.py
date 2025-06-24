@@ -18,10 +18,7 @@ def generate_images_from_prompts(prompts, progress_callback=None):
     OPENCLIP_MODEL = "ViT-L-14"
     OPENCLIP_DATA = "laion2b_s32b_b82k"
     print("Initializing model...")
-    model, _, preprocess = open_clip.create_model_and_transforms(
-        "ViT-L-14", "laion2b_s32b_b82k"
-    )
-    print("Model visual output dim:", model.visual.output_dim)
+    model, _, preprocess = open_clip.create_model_and_transforms(OPENCLIP_MODEL, OPENCLIP_DATA)
     model.eval()
     tokenizer = open_clip.get_tokenizer(OPENCLIP_MODEL)
 
@@ -30,25 +27,13 @@ def generate_images_from_prompts(prompts, progress_callback=None):
     image_features_list = []
     for path in image_paths:
         # Load and process each image feature
-        feat = torch.load(path)
-        print(f"Loaded {path}, shape: {feat.shape}")
-        if feat.ndim == 2:
-            pooled_features = feat  # Already pooled
-        else:
-            pooled_features = feat.mean(dim=(1, 2))  # Average pool spatial dimensions
-        print(f"Pooled features shape: {pooled_features.shape}")
+        feat = torch.load(path).unsqueeze(0)  # Add batch dimension
+        pooled_features = feat.mean(dim=(1, 2))  # Average pool spatial dimensions
         pooled_features = pooled_features.to(model.visual.proj.dtype)
-        print(f"model.visual.proj shape: {model.visual.proj.shape}")
-        try:
-            image_feat = pooled_features @ model.visual.proj.T  # Project to joint space (transpose)
-            print(f"image_feat shape: {image_feat.shape}")
-        except Exception as e:
-            print(f"Matrix multiplication error: {e}")
-            raise
+        image_feat = pooled_features @ model.visual.proj  # Project to joint space
         image_features_list.append(image_feat)
 
     image_features = torch.cat(image_features_list, dim=0)
-    print(f"Final image_features shape: {image_features.shape}")
 
     for i, base_prompt in enumerate(prompts):
         engineered_prompt = translate(base_prompt)
@@ -59,9 +44,7 @@ def generate_images_from_prompts(prompts, progress_callback=None):
         with torch.no_grad(), torch.autocast("cuda"):
             # Encode text
             text_features = model.encode_text(text)
-            print(f"text_features shape: {text_features.shape}")
-            # Project text features to the same space as image features
-            text_features = text_features @ model.visual.proj.T
+            
             # Normalize features
             image_features_temp = image_features.to(text_features.dtype)
             image_features_temp /= image_features_temp.norm(dim=-1, keepdim=True)
