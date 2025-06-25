@@ -1,0 +1,102 @@
+{% extends 'pdf_processor/base.html' %} {% block content %}
+<form
+  id="uploadForm"
+  action="{% url 'pdf_processor:upload_file' %}"
+  method="post"
+  enctype="multipart/form-data"
+  class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md space-y-4"
+>
+  {% csrf_token %} {{ form.non_field_errors }}
+
+  <!-- File Input -->
+  <div>
+    <label
+      for="id_pdf_file"
+      class="block text-md text-center font-medium text-gray-700 mb-2"
+      >Upload File</label
+    >
+    {{ form.pdf_file }} {% for error in form.pdf_file.errors %}
+    <div class="text-sm text-red-500 mt-1">{{ error }}</div>
+    {% endfor %}
+  </div>
+
+  <!-- Submit Button -->
+  <button
+    type="submit"
+    class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+  >
+    Upload
+  </button>
+</form>
+
+<!-- PDF Display -->
+<div
+  id="pdfDisplay"
+  class="border border-dashed border-gray-300 rounded-lg p-4 text-gray-500 text-center mt-4"
+>
+  <p class="text-sm">The PDF will be displayed here</p>
+</div>
+
+<script>
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  const csrftoken = getCookie("csrftoken");
+
+  document
+    .getElementById("uploadForm")
+    .addEventListener("submit", async function (event) {
+      event.preventDefault();
+      const fileInput = document.getElementById("id_pdf_file");
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("Please select a file!");
+        return;
+      }
+      const formData = new FormData();
+      formData.append("pdf_file", file);
+
+      try {
+        const response = await fetch("{% url 'pdf_processor:upload_file' %}", {
+          method: "POST",
+          body: formData,
+          headers: {
+            "X-CSRFToken": csrftoken,
+          },
+        });
+
+        const data = await response.json(); // Parse JSON response
+        if (response.ok) {
+          const fileUrl = data.file_url;
+          console.log("fileUrl:", fileUrl); // 添加这行调试
+          console.log("Full URL:", window.location.origin + fileUrl); // 添加这行
+          // Render the file dynamically in an iframe
+          const pdfDisplay = document.getElementById("pdfDisplay");
+          pdfDisplay.innerHTML = `
+                <iframe 
+                    src="${encodeURI(fileUrl)}#toolbar=0" 
+                    width="100%" 
+                    height="500px" 
+                    style="border: none;">
+                </iframe>
+            `;
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred while uploading or converting the file.");
+      }
+    });
+</script>
+
+{% endblock %}

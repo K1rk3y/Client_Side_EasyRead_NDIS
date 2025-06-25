@@ -1,0 +1,92 @@
+/* Root Container */
+.processing-container {
+    display: flex; /* Use flexbox for side-by-side layout */
+    height: 100vh; /* Full viewport height */
+    width: 100%; /* Full width */
+}
+
+/* Left Container: PDF Viewer */
+.left-container {
+    flex: 1; /* Occupy 50% of the width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f3f4f6; /* Light gray background */
+    border-right: 1px solid #e5e7eb; /* Subtle border */
+}
+
+/* PDF Display Styling */
+#pdfDisplay {
+    width: 100%; /* Adjust width within the container */
+    height: 100%; /* Adjust height within the container */
+    border: 1px dashed #d1d5db; /* Tailwind gray-300 */
+    background-color: #ffffff; /* White background */
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Right Container: Spinner, Message, Progress Bar */
+.right-container {
+    flex: 1; /* Occupy 50% of the width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+}
+
+/* Content Wrapper for Right Container */
+.content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly; /* Space out items evenly */
+    height: 80%; /* Adjust height within the right container */
+    width: 70%; /* Center the content */
+}
+
+/* Spinner Styles */
+.spinner {
+    width: 80px;
+    height: 80px;
+    border: 8px solid rgba(59, 130, 246, 0.2); /* Light blue border */
+    border-radius: 50%;
+    border-top: 8px solid #3b82f6; /* Tailwind blue-500 */
+    animation: spin 1s linear infinite;
+    box-sizing: border-box; /* Ensure padding and borders are included in width and height */
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Processing Message */
+.processing-message {
+    font-size: 1.25rem; /* Larger text size */
+    font-weight: 600; /* Semi-bold */
+    color: #4b5563; /* Tailwind gray-700 */
+    text-align: center;
+}
+
+/* Progress Bar Container */
+#progressBarContainer {
+    width: 100%; /* Full width of the content wrapper */
+    height: 20px;
+    border-radius: 10px;
+    background-color: #e5e7eb; /* Tailwind gray-300 */
+    overflow: hidden;
+}
+
+/* Progress Bar */
+#progressBar {
+    height: 100%;
+    background-color: #3b82f6; /* Tailwind blue-500 */
+    border-radius: 10px;
+    text-align: center;
+    color: #ffffff;
+    line-height: 20px; /* Center text vertically */
+    transition: width 0.5s ease; /* Smooth animation */
+}

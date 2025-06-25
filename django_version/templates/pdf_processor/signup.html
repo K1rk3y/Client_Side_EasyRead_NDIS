@@ -1,0 +1,18 @@
+{% extends "pdf_processor/base.html" %}
+{% block content %}
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2 class="auth-title">Sign Up</h2>
+            <form method="POST" class="auth-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div>
+                    <button type="submit" class="auth-button">Sign Up</button>
+                </div>
+            </form>
+            <p>Already have an account?
+                <a href="{% url 'pdf_processor:login_view' %}" class="auth-link">Login here</a>
+            </p>
+        </div>
+    </div>
+{% endblock %}

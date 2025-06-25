@@ -1,54 +1,103 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
+from django import forms
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth import get_user_model
+
 import sys
 import os
+from django.conf import settings
 
 # 添加父目录到路径以访问 core 模块
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
+User = get_user_model()
+
 def index(request):
-    """主页视图"""
-    return HttpResponse("<h1>Welcome to PDF Processor!</h1><p>Django version is running successfully.</p>")
+    ### Home page view
+    return render(request, 'pdf_processor/base.html')
+
+### PDF upload form
+class UploadForm(forms.Form):
+    pdf_file = forms.FileField()
 
 def upload_file(request):
-    """文件上传视图"""
     if request.method == 'POST':
-        return JsonResponse({'status': 'success', 'message': 'File uploaded'})
-    return HttpResponse("<h2>Upload File</h2><p>Upload your PDF or DOCX files here.</p>")
+        form = UploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            uploaded_file = form.cleaned_data['pdf_file']
+            file_path = os.path.join(settings.MEDIA_ROOT, uploaded_file.name)
+            with open(file_path, 'wb+') as destination:
+                for chunk in uploaded_file.chunks():
+                    destination.write(chunk)
+            file_url = settings.MEDIA_URL + uploaded_file.name
+            # 判断是 Ajax 请求还是普通表单
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'success', 'file_url': file_url})
+            else:
+                messages.success(request, 'File uploaded successfully!')
+                return redirect('pdf_processor:upload_file')
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+    else:
+        form = UploadForm()
+    return render(request, 'pdf_processor/upload.html', {'form': form})
+
 
 def process_pdf(request):
-    """PDF 处理视图"""
-    return JsonResponse({'status': 'processing', 'message': 'PDF is being processed'})
+    ### PDF processing view
+    return render(request, 'pdf_processor/processing.html')
+
+class LoginForm(forms.Form):
+    username = forms.CharField(label='Username', max_length=150)
+    password = forms.CharField(label='Password', widget=forms.PasswordInput)
 
 def login_view(request):
-    """登录视图"""
+    ### login view
+    form = LoginForm(request.POST or None)
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user:
-            login(request, user)
-            return redirect('pdf_processor:index')
-        else:
-            messages.error(request, 'Invalid credentials')
-    return HttpResponse("<h2>Login</h2><p>Please login to continue.</p>")
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user:
+                login(request, user)
+                return redirect('pdf_processor:index')
+            else:
+                messages.error(request, 'Invalid credentials')
+    return render(request, 'pdf_processor/login.html', {'form': form})
+
+class SignupForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput)
+    class Meta:
+        model = User
+        fields = ['username', 'password']
 
 def signup_view(request):
-    """注册视图"""
-    return HttpResponse("<h2>Sign Up</h2><p>Create your account here.</p>")
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password'])
+            user.save()
+            messages.success(request, 'Account created successfully! Please log in.')
+            return redirect('pdf_processor:login_view')
+    else:
+        form = SignupForm()
+    return render(request, 'pdf_processor/signup.html', {'form': form})
 
 def logout_view(request):
-    """登出视图"""
+    ### Logout view
     logout(request)
     return redirect('pdf_processor:login')
 
 def get_progress(request):
-    """获取处理进度"""
+    ### Progress view for PDF processing
     return JsonResponse({'progress': 50, 'message': 'Processing in progress'})
 
 def download_file(request):
-    """文件下载"""
-    return HttpResponse("<h2>Download</h2><p>Your processed file is ready for download.</p>")
+    ### File download view
+    return render(request, 'pdf_processor/results.html')

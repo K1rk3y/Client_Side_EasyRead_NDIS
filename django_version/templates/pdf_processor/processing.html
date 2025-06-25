@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Link to the processing.css file -->
+<link rel="stylesheet" href="{{ url_for('static', filename='processing.css') }}">
+
+<div class="processing-container">
+    <!-- Left Container: PDF Viewer -->
+    <div class="left-container">
+        <!-- PDF Display -->
+        <div id="pdfDisplay">
+            <!-- Placeholder for the PDF -->
+            <p class="text-sm">The PDF will be displayed here</p>
+        </div>
+    </div>
+    
+    <!-- Right Container: Spinner, Message, Progress Bar -->
+    <div class="right-container">
+        <div class="content-wrapper">
+            <!-- Spinner -->
+            <div class="spinner"></div>
+            
+            <!-- Processing Message -->
+            <div id="processingMessage" class="processing-message">Processing Your Request...</div>
+            
+            <!-- Progress Bar -->
+            <div id="progressBarContainer">
+                <div id="progressBar" style="width: 0%;">0%</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include your JavaScript here -->
+<script>
+    // Load the PDF file and display it
+    window.addEventListener('DOMContentLoaded', () => {
+        // Retrieve the PDF file URL from sessionStorage
+        pdf_url = "static/uploads/upload.pdf"
+        if (pdf_url) {
+            document.getElementById('pdfDisplay').innerHTML = `
+                <iframe 
+                    src="${pdf_url}#toolbar=0" 
+                    width="100%" 
+                    height="100%" 
+                    style="border: none;">
+                </iframe>
+            `;
+        }
+    });
+
+    function updateProgress() {
+        fetch('/progress')
+            .then(response => response.json())
+            .then(data => {
+                const progressBar = document.getElementById('progressBar');
+                
+                // Update the progress bar's width and text
+                progressBar.style.width = `${data.progress}%`;
+                progressBar.textContent = `${data.progress}%`;
+
+                // Update the processing message based on progress
+                if (data.progress >= 10 && data.progress < 40) {
+                    processingMessage.textContent = "Generating texts...";
+                } else if (data.progress >= 40 && data.progress < 80) {
+                    processingMessage.textContent = "Generating images...";
+                } else if (data.progress >= 80 && data.progress < 100) {
+                    processingMessage.textContent = "Generating the Easy Read Document...";
+                } else if (data.progress >= 100) {
+                    processingMessage.textContent = "Processing complete! Redirecting...";
+                }
+
+                if (data.progress >= 100) {
+                    // Automatically redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = '/upload-template';
+                    }, 1500); // 1-second delay to show 100%
+                } else if (data.progress = 80) {
+                    setTimeout(updateProgress, 1500)
+                } else {
+                    // Continue polling
+                    setTimeout(updateProgress, 500);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching progress:', error);
+                setTimeout(updateProgress, 500); // Retry on error
+            });
+    }
+
+    // Start polling on page load
+    document.addEventListener('DOMContentLoaded', updateProgress);
+</script>
+{% endblock %}

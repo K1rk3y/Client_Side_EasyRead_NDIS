@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link href="{% static 'output.css' %}" rel="stylesheet">
+    <link href="{% static 'base.css' %}" rel="stylesheet">
+    <title>{% block title %}PDF Processor{% endblock %}</title>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <nav>
+                <h1>🔄 Easy Read Intelife</h1>
+                <div class="nav-links">
+                    <a href="{% url 'pdf_processor:index' %}">🏠 Home</a>
+                    <a href="{% url 'pdf_processor:upload_file' %}">📤 Upload</a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'admin:index' %}">⚙️ Admin</a>
+                        <a href="{% url 'pdf_processor:logout_view' %}">👋 Logout ({{ user.username }})</a>
+                    {% else %}
+                        <a href="{% url 'pdf_processor:login_view' %}">🔐 Login</a>
+                        <a href="{% url 'pdf_processor:signup_view' %}">✨ Sign Up</a>
+                    {% endif %}
+                                        <!-- Mode Switch Button -->
+                    <button id="modeSwitchBtn" class="btn" type="button" style="margin-left: 20px;">
+                        Switch to Advance Mode
+                    </button>
+                </div>
+            </nav>
+        </header>
+
+        <main class="main-content">
+                <!-- Introduction Section -->
+            <section class="intro-section" style="margin-bottom: 2em;">
+                <h2>Welcome to Intelife Easy Read Tools</h2>
+                <p>
+                    <strong>Intelife</strong> is dedicated to supporting people with disabilities to live more independently and confidently. Our <strong>Easy Read Tools</strong> are designed to help you convert complex PDF and DOCX documents into easy-to-understand formats, making information more accessible for everyone.
+                </p>
+                <ul>
+                    <li><strong>Purpose:</strong> Simplify documents so they are easier to read and understand.</li>
+                    <li><strong>How to use:</strong> Upload your PDF or DOCX file, and our tool will process and present the content in an easy read format.</li>
+                    <li><strong>Guidance:</strong> Use the <b>Simple</b> mode for basic conversion, or switch to <b>Advance</b> mode for more customization and features.</li>
+                </ul>
+                <p>
+                    If you need help, please contact the Intelife team or refer to our help section.
+                </p>
+            </section>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+    <script>
+        // Simple/Advance mode switch logic (front-end only)
+        let isAdvance = false;
+        const btn = document.getElementById('modeSwitchBtn');
+        btn.addEventListener('click', function() {
+            isAdvance = !isAdvance;
+            btn.textContent = isAdvance ? 'Switch to Simple Mode' : 'Switch to Advance Mode';
+            document.body.classList.toggle('advance-mode', isAdvance);
+        });
+    </script>
+</body>
+</html>

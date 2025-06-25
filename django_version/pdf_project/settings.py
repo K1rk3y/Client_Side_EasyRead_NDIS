@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE_DIR.parent))
 
 
-SECRET_KEY = "your-secret-key-here"  # 请更改为安全的密钥
+SECRET_KEY = "secret_easyreadintelife_b01c400ee64b426dab3358375c8b3e70.BPgHqwY3OxK27Kdji7S2zexqNsPUITNT"  
 DEBUG = True
 ALLOWED_HOSTS = []
 
@@ -94,3 +94,5 @@ LOGOUT_REDIRECT_URL = "/login/"
 # 文件上传设置
 FILE_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024  # 100MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024  # 100MB
+
+AUTH_USER_MODEL = 'pdf_processor.CustomUser'

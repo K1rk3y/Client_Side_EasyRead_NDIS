@@ -1,0 +1,32 @@
+{% extends "pdf_processor/base.html" %}
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2 class="auth-title">Login</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.username.label_tag }}<br>
+                {{ form.username }}
+            </div>
+            <div class="form-group">
+                {{ form.password.label_tag }}<br>
+                {{ form.password }}
+            </div>
+            <div>
+                <button type="submit" class="auth-button">Login</button>
+            </div>
+        </form>
+        <p>Don't have an account? <a href="{% url 'pdf_processor:signup_view' %}" class="auth-link">Sign up here</a></p>
+    </div>
+</div>
+{% endblock %}

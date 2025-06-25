@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Viewer with Navigation</title>
+    <link rel="stylesheet" href="/static/pdf_displayer.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Left side displaying the PDF page -->
+        <div class="left">
+            <div class="pdf-container">
+                <!-- Dynamically display the correct image based on current_page -->
+                <img id="pdfImage" src="static/pdf2image/pdf_page_{{ current_page-1 }}.jpg" alt="PDF Page">
+                <div class="navigation">
+                    <div class="navigation">
+                        <button id="prevButton" onclick="navigatePage(-1)" {% if current_page == 1 %}disabled{% endif %}>←</button>
+                        <button id="nextButton" onclick="navigatePage(1)" {% if current_page == total_pages %}disabled{% endif %}>→</button>
+                    </div>
+                </div>
+            </div>
+        </div>        
+
+        <!-- Right side containing editable text boxes -->
+        <div class="right">
+            <form action="/submit" method="POST">
+                <!-- Hidden input for the current page -->
+                <input type="hidden" name="page" id="currentPageInput" value="{{ current_page }}">
+
+                <!-- Loop through the text boxes and render them -->
+                {% for box_id, content in text_boxes.items() %}
+                <div class="text-box">
+                    <textarea name="{{ box_id }}" id="{{ box_id }}" rows="3" oninput="adjustHeight(this)">{{ content }}</textarea>
+                </div>
+                {% endfor %}
+                
+                <!-- Save Changes Button -->
+                <button type="submit" class="save-button">Save Changes</button>
+
+                <!-- Download PDF Button -->
+                <button type="button" class="download-button" onclick="downloadPDF()">Download PDF</button>
+            </form>
+        </div>
+
+        <script>
+            let currentPage = {{ current_page }};
+            const totalPages = {{ total_pages }};
+
+            // Function to navigate between pages and reload the page
+            function navigatePage(direction) {
+                currentPage += direction;
+
+                // Ensure currentPage is within valid range
+                if (currentPage < 1) currentPage = 1;
+                if (currentPage > totalPages) currentPage = totalPages;
+
+                // Reload the page with the updated page parameter
+                window.location.href = `/display?page=${currentPage}`;
+            }
+
+            // Function to adjust the height of a single textarea dynamically
+            function adjustHeight(textArea) {
+                textArea.style.height = 'auto'; // Reset the height
+                textArea.style.height = textArea.scrollHeight + 'px'; // Adjust height to fit content
+            }
+
+            // Function to adjust all text areas dynamically on page load
+            function adjustAllTextAreas() {
+                document.querySelectorAll('textarea').forEach(adjustHeight);
+            }
+
+            // Function to download the PDF
+            function downloadPDF() {
+                window.location.href = '/download-pdf';
+            }
+            
+            // Attach the adjustHeight function to the 'input' event for each textarea
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('textarea').forEach(textArea => {
+                    // Adjust height when content changes
+                    textArea.addEventListener('input', () => adjustHeight(textArea));
+                    // Adjust height initially
+                    adjustHeight(textArea);
+                });
+            });
+        </script>                
+    </div>
+</body>
+</html>
