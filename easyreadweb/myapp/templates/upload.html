@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+    <form 
+        id="uploadForm"
+        action="{% url 'process' %}" 
+        method="post" 
+        enctype="multipart/form-data" 
+        class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md space-y-4"
+    >
+        {{ form.as_p }}
+        <button 
+            type="submit" 
+            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+        >
+            Upload
+        </button>
+    </form>
+</div>
+{% endblock %}
