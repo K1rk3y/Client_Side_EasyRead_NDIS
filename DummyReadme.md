@@ -32,6 +32,12 @@ source venvflask/bin/activate
 ```
 
 3. Install the requirement
+
+For Django
+```
+pip install -r django-packages.txt
+```
+
 For Flask
 ```
 pip install -r flask-packages.txt
