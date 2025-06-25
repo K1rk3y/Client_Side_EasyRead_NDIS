@@ -59,7 +59,13 @@ And then find and copy the folder nltk_data to /venvflask
 
 6. Unzip and Copy clips and images folder 
 
-7. Run the server
+7. Run database Creation/migrations (Django)
+```
+python ./easyreadweb/manage.py makemigrations
+python ./easyreadweb/manage.py migrate
+```
+
+8. Run the server
 
 Django
 ```
@@ -69,4 +75,4 @@ python ./easyreadweb/manage.py runserver 0.0.0.0:5001
 Flask
 ```
 python run.py
-``` 
+```
