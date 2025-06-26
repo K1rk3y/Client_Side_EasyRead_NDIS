@@ -145,11 +145,23 @@ def create_df():
     return df
 
 
+def safe_literal_eval(val):
+    if isinstance(val, str):
+        try:
+            return np.array(literal_eval(val))
+        except Exception:
+            return np.array([])
+    elif isinstance(val, list) or isinstance(val, np.ndarray):
+        return np.array(val)
+    else:
+        return np.array([])
+
+
 def prepare_embeddings_df():
     """Prepare and return DataFrame with embeddings."""
     if os.path.exists('embeddings.csv'):
         df = pd.read_csv('embeddings.csv', index_col=0)
-        df['embeddings'] = df['embeddings'].apply(literal_eval).apply(np.array)
+        df['embeddings'] = df['embeddings'].apply(safe_literal_eval)
         return df
     
     # Create new embeddings if file doesn't exist
@@ -181,7 +193,7 @@ def iterative_translation(input_text: str, n_iterations: int = 1,
     # Prepare embeddings DataFrame
     df = prepare_embeddings_df() if not os.path.exists('embeddings.csv') else pd.read_csv('embeddings.csv', index_col=0)
     if 'embeddings' in df.columns:
-        df['embeddings'] = df['embeddings'].apply(literal_eval).apply(np.array)
+        df['embeddings'] = df['embeddings'].apply(safe_literal_eval)
     
     # Get context for the translation
     context = create_context(input_text, df)
