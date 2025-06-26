@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Template</title>
+    <link rel="stylesheet" href="/static/templates.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Option 1 Container -->
+        <div class="option-container left">
+            <!-- Option 1 Button -->
+            <form action="/choose-template" method="POST" class="option-form">
+                <input type="hidden" name="option" value="3">
+                <button type="submit" class="select-button">Option 1</button>
+            </form>
+            <!-- Description -->
+            <p class="option-description">3 Text boxes along with pictures per page.</p>
+            <!-- Image -->
+            <img src="/static/templates/Template 1.jpg" alt="Option 1" class="option-image">
+        </div>
+
+        <!-- Option 2 Container -->
+        <div class="option-container right">
+            <!-- Option 2 Button -->
+            <form action="/choose-template" method="POST" class="option-form">
+                <input type="hidden" name="option" value="4">
+                <button type="submit" class="select-button">Option 2</button>
+            </form>
+            <!-- Description -->
+            <p class="option-description">4 Text boxes along with pictures per page.</p>
+            <!-- Image -->
+            <img src="/static/templates/Template 2.jpg" alt="Option 2" class="option-image">
+        </div>
+    </div>
+</body>
+</html>

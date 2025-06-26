@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload and Convert</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+        }
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #ccc;
+            padding: 20px;
+        }
+        form {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+        button:disabled {
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+        }
+        select:disabled {
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+        }
+    </style>
+    <script>
+        function lockOption() {
+            const fileInput = document.getElementById('docx_file');
+            const conversionSelect = document.getElementById('conversion_option');
+            const confirmButton = document.getElementById('confirm_button');
+            const clearButton = document.getElementById('clear_button');
+
+            if (fileInput.files.length > 0) {
+                // Determine the file type from the uploaded file
+                const uploadedFile = fileInput.files[0];
+                const fileType = uploadedFile.name.split('.').pop().toLowerCase();
+
+                if (fileType === 'docx') {
+                    conversionSelect.value = "DOCX";
+                } else if (fileType === 'pdf') {
+                    conversionSelect.value = "PDF";
+                } else {
+                    alert("Unsupported file type! Please upload a DOCX or PDF file.");
+                    clearFile();
+                    return;
+                }
+
+                // Lock the dropdown and disable the confirm button
+                conversionSelect.disabled = true;
+                confirmButton.disabled = true;
+                clearButton.disabled = false;
+            }
+        }
+
+        function clearFile() {
+            const fileInput = document.getElementById('docx_file');
+            const conversionSelect = document.getElementById('conversion_option');
+            const confirmButton = document.getElementById('confirm_button');
+            const clearButton = document.getElementById('clear_button');
+
+            // Clear the file input
+            fileInput.value = "";
+
+            // Reset the right container
+            conversionSelect.disabled = false;
+            conversionSelect.value = "";
+            confirmButton.disabled = false; // Re-enable the confirm button
+            clearButton.disabled = true;  // Disable the clear button
+        }
+    </script>
+</head>
+<body>
+    <!-- Left Container: Upload DOCX File -->
+    <div class="container">
+        <form id="uploadForm" action="/upload-template" method="POST" enctype="multipart/form-data">
+            <label for="docx_file">Upload Template Here (DOCX or PDF):</label>
+            <input type="file" id="docx_file" name="docx_file" accept=".docx,.pdf" onchange="lockOption()">
+            <div class="button-group">
+                <button type="submit">Upload</button>
+                <button type="button" id="clear_button" onclick="clearFile()" disabled>Clear</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Right Container: Conversion Option -->
+    <div class="container">
+        <form id="conversionForm" action="/upload-template" method="POST">
+            <label for="conversion_option">Choose Desired Format:</label>
+            <select id="conversion_option" name="conversion_option" required>
+                <option value="" disabled selected>Select an option</option>
+                <option value="PDF">PDF</option>
+                <option value="DOCX">DOCX</option>
+            </select>
+            <button type="submit" id="confirm_button">Confirm</button>
+        </form>
+    </div>
+</body>
+</html>
