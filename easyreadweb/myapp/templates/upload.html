@@ -8,6 +8,7 @@
         enctype="multipart/form-data" 
         class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md space-y-4"
     >
+        {% csrf_token %}
         {{ form.as_p }}
         <button 
             type="submit" 
