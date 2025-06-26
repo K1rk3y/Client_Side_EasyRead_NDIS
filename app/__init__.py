@@ -1,4 +1,4 @@
-'''from flask import Flask
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 
@@ -36,4 +36,3 @@ def create_app(config_class=None):
     login_manager.login_view = 'index.login'
     
     return app
-    '''

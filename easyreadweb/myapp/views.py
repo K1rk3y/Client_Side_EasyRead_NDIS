@@ -10,7 +10,7 @@ import os
 import threading
 import time
 from core.word_generation import create_docx
-from app.summariser import summarise
+from myapp.summariser import summarise
 from core.generate_images import generate_images_from_prompts
 
 def login_view(request):
