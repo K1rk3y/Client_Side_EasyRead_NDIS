@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'processing.css' %}">
+
+<div class="processing-container">
+    <!-- Left Container: PDF Viewer -->
+    <div class="left-container">
+        <!-- PDF Display -->
+        <div id="pdfDisplay">
+            <p class="text-sm">The PDF will be displayed here</p>
+        </div>
+    </div>
+    <!-- Right Container: Spinner, Message, Progress Bar -->
+    <div class="right-container">
+        <div class="content-wrapper">
+            <div class="spinner"></div>
+            <div id="processingMessage" class="processing-message">Processing Your Request...</div>
+            <div id="progressBarContainer">
+                <div id="progressBar" style="width: 0%;">0%</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // window.addEventListener('DOMContentLoaded', () => {
+    //     // Retrieve the PDF file URL from sessionStorage or use default
+    //     let pdf_url = "/static/uploads/upload.pdf";
+    //     if (pdf_url) {
+    //         document.getElementById('pdfDisplay').innerHTML = `
+    //             <iframe 
+    //                 src="${pdf_url}#toolbar=0" 
+    //                 width="100%" 
+    //                 height="100%" 
+    //                 style="border: none;">
+    //             </iframe>
+    //         `;
+    //     }
+    // });
+
+    function updateProgress() {
+        fetch('/progress')
+            .then(response => response.json())
+            .then(data => {
+                const progressBar = document.getElementById('progressBar');
+                const processingMessage = document.getElementById('processingMessage');
+                progressBar.style.width = `${data.progress}%`;
+                progressBar.textContent = `${data.progress}%`;
+                if (data.progress >= 10 && data.progress < 40) {
+                    processingMessage.textContent = "Generating texts...";
+                } else if (data.progress >= 40 && data.progress < 80) {
+                    processingMessage.textContent = "Generating images...";
+                } else if (data.progress >= 80 && data.progress < 100) {
+                    processingMessage.textContent = "Generating the Easy Read Document...";
+                } else if (data.progress >= 100) {
+                    processingMessage.textContent = "Processing complete! Redirecting...";
+                }
+                if (data.progress >= 100) {
+                    setTimeout(() => {
+                        window.location.href = '/upload-template';
+                    }, 1500);
+                } else if (data.progress === 80) {
+                    setTimeout(updateProgress, 1500);
+                } else {
+                    setTimeout(updateProgress, 500);
+                }
+            })
+            .catch(error => {
+                setTimeout(updateProgress, 500);
+            });
+    }
+    document.addEventListener('DOMContentLoaded', updateProgress);
+</script>
+{% endblock %}

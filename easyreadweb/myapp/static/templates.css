@@ -1,0 +1,83 @@
+/* Container styles */
+.container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100vh; /* Full viewport height */
+    overflow: hidden; /* Prevent unwanted scrolling */
+}
+
+/* Equal flex proportions for left and right option containers */
+.option-container {
+    flex: 1; /* Ensures both containers take up equal space */
+    display: flex;
+    flex-direction: column; /* Stack content vertically */
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin: 0; /* Remove any margin to prevent size discrepancies */
+}
+
+/* On hover, keep scaling consistent */
+.option-container:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Button styling for Option 1 and 2 */
+.option-form {
+    margin-bottom: 10px; /* Add space between button and description */
+}
+
+/* Button styling for Option 1 and 2 */
+.select-button {
+    padding: 12.5px 20px;/* Adjust padding for taller buttons */
+    font-size: 1rem; /* Increase font size */
+    font-weight: bold;
+    margin: 0; /* Center the button */
+    display: inline-flex; /* Align button horizontally */
+    white-space: nowrap; /* Prevent text wrapping */
+    justify-content: center; /* Center text horizontally */
+    color: #fff;
+    background-color: #007BFF; /* Blue button background */
+    border: none;
+    border-radius: 10px; /* Slightly larger border radius for rounded corners */
+    cursor: pointer;
+    text-align: center;
+    text-transform: uppercase;
+    transition: background-color 0.2s, transform 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for emphasis */
+    width: 80%; /* Set button width to 80% of the container */
+    max-width: 300px; /* Add a maximum width to prevent overly large buttons */
+}
+
+.select-button:hover {
+    background-color: #0056b3;
+    transform: translateX(2.5px) translateY(-2.5px); /* Slightly lift on hover */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* Enhance shadow on hover */
+}
+
+/* Description styling */
+.option-description {
+    margin: 10px 0; /* Add spacing above and below the description */
+    font-size: 1.1rem;
+    color: #000;
+    text-align: center;
+    max-width: 80%; /* Restrict width for better readability */
+}
+
+/* Ensure images inside the containers are consistently sized */
+.option-image {
+    width: 80%; /* Use the same width for both images */
+    max-width: 300px; /* Limit the maximum size */
+    height: auto; /* Maintain aspect ratio */
+    max-height: 70%; /* Prevent images from exceeding the container */
+    border-radius: 5px;
+    object-fit: contain; /* Ensures the image fits within the bounds */
+}
