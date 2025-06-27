@@ -325,3 +325,7 @@ def docx_view(request):
         'output_file': output_file,
     }
     return render(request, 'docx.html', context)
+
+# User guide view
+def user_guide(request):
+    return render(request, 'user_guide.html')
