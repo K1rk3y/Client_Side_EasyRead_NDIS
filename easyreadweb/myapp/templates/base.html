@@ -1,94 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
     <link href="{% static 'output.css' %}" rel="stylesheet">
-    <link href="{% static 'base.css' %}" rel="stylesheet">
-    <title>{% block title %}Easy Read Intelife{% endblock %}</title>
+    <link href="{% static 'auth.css' %}" rel="stylesheet">
+    <title>EasyRead</title>
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <nav>
-                <a href="{% url 'home' %}" class="logo">
-                    <img src="https://intelife.org/wp-content/uploads/2019/11/intelife-logo.svg" alt="Intelife Logo">
-                </a>
-                
-                <div class="nav-links">
-                    
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'home' %}">🏠 Home</a>
-                        <a href="{% url 'process' %}">📤 Upload</a>
-                        <a href="{% url 'admin:index' %}">⚙️ Admin</a>
-                        <a href="{% url 'user_guide' %}">User Guide</a>
-                    {% endif %}
-                    
-                </div>
-                
-                <div class="nav-buttons">
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'logout' %}" class="btn btn-outline">
-                            👋 Logout ({{ user.username }})
-                        </a>
-                    {% else %}
-                        <a href="{% url 'user_guide' %}" class="btn btn-outline">User Guide</a>
-                        <a href="{% url 'login' %}" class="btn btn-outline">🔐 Login</a>
-                        <a href="{% url 'signup' %}" class="btn btn-primary">✨ Sign Up</a>
-                    {% endif %}
-                </div>
-            </nav>
-        </header>
-
-        <main class="main-content">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-            
-            {% block content %}
-            <!-- Hero Section - -->
-            <section class="hero-section">
-                <div class="hero-content">
-                    <h1 class="hero-title">Transform Documents to Easy Read Format</h1>
-                    <p class="hero-subtitle">
-                        Empowering people with disabilities to access information easily. 
-                        Convert complex PDF and DOCX documents into easy-to-understand formats 
-                        with our AI-powered tools.
-                    </p>
-                    
-                    <div class="hero-buttons">
-                        <button id="advanceModeBtn" class="btn btn-primary hero-btn">
-                            Advance Mode<br>
-                            <span style="font-size: 0.85em; display: block; margin-top: 2px;">(For support workers)</span>
-                        </button>
-                        <button id="simpleModeBtn" class="btn btn-outline hero-btn">
-                            Simple Mode
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Decorative cubes -->
-                <div class="hero-decoration">
-                    <div class="cube cube-1"></div>
-                    <div class="cube cube-2"></div>
-                    <div class="cube cube-3"></div>
-                    <div class="cube cube-4"></div>
-                </div>
-            </section>
-            
-            <div class="trust-section">
-                <p>Trusted by disability support organizations around Australia</p>
-            </div>
-            {% endblock %}
-        </main>
-    </div>
-    
-    <!-- JavaScript
-    <script src="{% static 'js/main.js' %}"></script> -->
+    {% block content %}{% endblock %}
+    <nav>
+        {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}">Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'signup' %}">Sign Up</a>
+        {% endif %}
+    </nav>
 </body>
 </html>
