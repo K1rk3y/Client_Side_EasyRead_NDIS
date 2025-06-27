@@ -3,15 +3,26 @@ from .forms import LoginForm, RegisterForm
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.views.decorators.csrf import csrf_exempt
 from django.http import FileResponse, Http404, JsonResponse
 import os
+import sys
 import threading
 import time
 from core.word_generation import create_docx
-from myapp.summariser import summarise
-from core.generate_images import generate_images_from_prompts
+
+
+# Add parent directory to path to access core module
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+
+# Get the user model
+User = get_user_model()
+
+# Home page view
+def home(request):
+    return render(request, 'base.html')
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -22,8 +33,8 @@ def login_view(request):
             user = authenticate(request, username=email, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, 'Login successful!')
-                return redirect('process')
+                messages.success(request, 'Login successfully!')
+                return redirect('myapp:process')
             else:
                 messages.error(request, 'Invalid email or password.')
         else:
@@ -56,53 +67,6 @@ def signup_view(request):
     return render(request, 'signup.html', {'form': form})
 
 def process_pdf_task(session, pdf_file_path):
-    """
-    后台线程任务：处理PDF，更新进度，生成图片，保存结果到session。
-    """
-    session['progress'] = 10
-    session.save()
-    time.sleep(2.5)
-
-    session['progress'] = 20
-    session.save()
-    time.sleep(1)
-
-    # 1. 调用 summarise 获取结果
-    results = summarise(pdf_file_path)
-    session['progress'] = 40
-    session.save()
-    time.sleep(1)
-
-    # 2. 生成图片
-    total_images = len(results)
-    images = []
-    def progress_callback(current_image, total_images):
-        progress_start = 40
-        progress_end = 80
-        progress_range = progress_end - progress_start
-        progress_increment = progress_range / total_images if total_images else 1
-        session['progress'] = int(round(progress_start + (current_image * progress_increment)))
-        session.save()
-    if total_images > 0:
-        generated_images, docx_results = generate_images_from_prompts(results, progress_callback)
-        images = generated_images
-    else:
-        images = []
-        docx_results = []
-    session['progress'] = 80
-    session['results'] = results
-    session['images'] = images
-    session['docx_results'] = docx_results if 'docx_results' in locals() else []
-    session.save()
-    time.sleep(1)
-
-    # 删除上传文件
-    if os.path.exists(pdf_file_path):
-        os.remove(pdf_file_path)
-    session['progress'] = 100
-    session.save()
-'''
-def process_pdf_task(session, pdf_file_path):
     # Simulate progress updates and processing
     session['progress'] = 10
     session.save()
@@ -132,7 +96,7 @@ def process_pdf_task(session, pdf_file_path):
     # os.remove(pdf_file_path)  # Uncomment in production
     session['progress'] = 100
     session.save()
-'''
+
 @login_required
 def process_view(request):
     from .forms import PDFUploadForm
@@ -313,3 +277,8 @@ def docx_view(request):
         'output_file': output_file,
     }
     return render(request, 'docx.html', context)
+
+# User guide view
+def user_guide(request):
+    return render(request, 'user_guide.html')
+
