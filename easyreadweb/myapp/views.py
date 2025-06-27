@@ -13,6 +13,7 @@ import time
 from core.word_generation import create_docx
 from myapp.summariser import summarise
 from core.generate_images import generate_images_from_prompts
+from django.conf import settings 
 
 # Add parent directory to path to access core module
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -22,7 +23,7 @@ User = get_user_model()
 
 # Home page view
 def home(request):
-    return render(request, 'base.html')
+    return render(request, 'home.html')
 
 
 def login_view(request):
@@ -35,7 +36,7 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, 'Login successful!')
-                return redirect('process')
+                return redirect('home')
             else:
                 messages.error(request, 'Invalid email or password.')
         else:
@@ -288,23 +289,19 @@ def upload_file_view(request):
         file_extension = os.path.splitext(file.name)[1].lower()
         if file_extension not in ['.pdf', '.docx']:
             return JsonResponse({'error': f'Unsupported file type: {file_extension}'}, status=400)
-        upload_dir = os.path.join('static', 'uploads')
+        # save to MEDIA_ROOT/uploads/
+        upload_dir = os.path.join(settings.MEDIA_ROOT, 'uploads')
         os.makedirs(upload_dir, exist_ok=True)
-        temp_filenames = ['upload.pdf', 'upload.docx']
-        for filename in temp_filenames:
-            file_path = os.path.join(upload_dir, filename)
-            if os.path.exists(file_path):
-                os.remove(file_path)
         static_file_name = 'upload.pdf' if file_extension == '.pdf' else 'upload.docx'
         file_path = os.path.join(upload_dir, static_file_name)
+        # 删除旧文件
+        if os.path.exists(file_path):
+            os.remove(file_path)
         with open(file_path, 'wb+') as destination:
             for chunk in file.chunks():
                 destination.write(chunk)
-        # TODO: Add DOCX to PDF conversion if needed
-        if file_extension == '.docx':
-            # Call your conversion function here
-            pass
-        pdf_url = '/static/uploads/upload.pdf'
+        # 返回 /media/uploads/upload.pdf
+        pdf_url = f'{settings.MEDIA_URL}uploads/{static_file_name}'
         return JsonResponse({'file_url': pdf_url}, status=200)
     return JsonResponse({'error': 'Invalid request'}, status=400)
 

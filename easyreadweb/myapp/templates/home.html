@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+    <!-- Hero Section - -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Transform Documents to Easy Read Format</h1>
+            <p class="hero-subtitle">
+                Empowering people with disabilities to access information easily. 
+                Convert complex PDF and DOCX documents into easy-to-understand formats 
+                with our AI-powered tools.
+            </p>
+            <div class="hero-buttons">
+                <button id="advanceModeBtn" class="btn btn-primary hero-btn">
+                    Advance Mode<br>
+                    <span style="font-size: 0.85em; display: block; margin-top: 2px;">(For support workers)</span>
+                </button>
+                <button id="simpleModeBtn" class="btn btn-outline hero-btn">
+                    Simple Mode
+                </button>
+            </div>
+        </div>
+        <!-- Decorative cubes -->
+        <div class="hero-decoration">
+            <div class="cube cube-1"></div>
+            <div class="cube cube-2"></div>
+            <div class="cube cube-3"></div>
+            <div class="cube cube-4"></div>
+        </div>
+    </section>
+    <div class="trust-section">
+        <p>Trusted by disability support organizations around Australia</p>
+    </div>
+{% endblock %}
