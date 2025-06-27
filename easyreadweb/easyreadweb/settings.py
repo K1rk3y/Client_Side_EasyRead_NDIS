@@ -78,10 +78,23 @@ WSGI_APPLICATION = "easyreadweb.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# sqlite3 (retired)
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / ".." / "instance" / "djsite.db",
+#     }
+# }
+
+# PostgreSql 16.9
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / ".." / "instance" / "djsite.db",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'easyread',
+        'USER': 'easyreaddj',
+        'PASSWORD': 'your_password',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
