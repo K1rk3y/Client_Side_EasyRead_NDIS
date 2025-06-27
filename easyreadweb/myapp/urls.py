@@ -3,7 +3,7 @@ from . import views
 from .views import signup_view, process_view, logout_view, upload_template_view, choose_template_view, display_view, submit_view, download_pdf_view
 
 urlpatterns = [
-    path('', views.login_view, name='home'),
+    path('', views.home, name='home'),
     path('login/', views.login_view, name='login'),
     path('signup/', signup_view, name='signup'),
     path('process/', process_view, name='process'),
@@ -16,4 +16,6 @@ urlpatterns = [
     path('progress/', views.progress_view, name='progress'),
     path('upload/', views.upload_file_view, name='upload_file'),
     path('docx/', views.docx_view, name='docx'),
+    path('userguide/', views.user_guide, name='user_guide'),
+
 ]

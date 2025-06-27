@@ -3,15 +3,27 @@ from .forms import LoginForm, RegisterForm
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.views.decorators.csrf import csrf_exempt
 from django.http import FileResponse, Http404, JsonResponse
 import os
+import sys
 import threading
 import time
 from core.word_generation import create_docx
 from myapp.summariser import summarise
 from core.generate_images import generate_images_from_prompts
+
+# Add parent directory to path to access core module
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+
+# Get the user model
+User = get_user_model()
+
+# Home page view
+def home(request):
+    return render(request, 'base.html')
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -313,3 +325,7 @@ def docx_view(request):
         'output_file': output_file,
     }
     return render(request, 'docx.html', context)
+
+# User guide view
+def user_guide(request):
+    return render(request, 'user_guide.html')
