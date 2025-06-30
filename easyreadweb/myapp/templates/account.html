@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Account{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-4">Account Information</h2>
+    <div class="mb-4">
+        <p><span class="font-semibold">Name:</span> {{ user.first_name }}</p>
+        <p><span class="font-semibold">Email:</span> {{ user.email }}</p>
+    </div>
+    <div class="mb-6 flex items-center gap-4">
+        {% if user.profilepic %}
+            <img src="data:{{ user.profilepic_mime }};base64,{{ user.profilepic }}" alt="Profile Picture" class="w-20 h-20 rounded-full object-cover border border-gray-300" />
+        {% else %}
+            <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 border border-gray-300">No Image</div>
+        {% endif %}
+        <form method="post" enctype="multipart/form-data" class="flex flex-col gap-2">
+            {% csrf_token %}
+            <label class="block text-sm font-medium text-gray-700">Change Profile Picture</label>
+            <input type="file" name="profilepic" accept="image/*" class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+            <button type="submit" name="update_pic" class="btn btn-outline w-fit">Upload</button>
+        </form>
+    </div>
+    <hr class="my-6">
+    <h3 class="text-xl font-semibold mb-2">Change Password</h3>
+    <div class="mb-4 text-sm text-gray-600">
+        {{ form.fields.new_password1.help_text|safe }}
+    </div>
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="bg-red-100 text-red-700 p-2 rounded mb-2">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+        <div>
+            {{ form.old_password.label_tag }}
+            <input type="password" name="old_password" class="w-full p-2 border border-gray-300 rounded bg-white focus:outline-none focus:ring-2 focus:ring-blue-400" required id="id_old_password">
+            {% if form.old_password.errors %}
+                <p class="text-red-600 text-xs mt-1">{{ form.old_password.errors.0 }}</p>
+            {% endif %}
+        </div>
+        <div>
+            {{ form.new_password1.label_tag }}
+            <input type="password" name="new_password1" class="w-full p-2 border border-gray-300 rounded bg-white focus:outline-none focus:ring-2 focus:ring-blue-400" required id="id_new_password1">
+            {% if form.new_password1.errors %}
+                <p class="text-red-600 text-xs mt-1">{{ form.new_password1.errors.0 }}</p>
+            {% endif %}
+        </div>
+        <div>
+            {{ form.new_password2.label_tag }}
+            <input type="password" name="new_password2" class="w-full p-2 border border-gray-300 rounded bg-white focus:outline-none focus:ring-2 focus:ring-blue-400" required id="id_new_password2">
+            {% if form.new_password2.errors %}
+                <p class="text-red-600 text-xs mt-1">{{ form.new_password2.errors.0 }}</p>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary w-full">Change Password</button>
+    </form>
+    {% if password_changed %}
+        <div class="bg-green-100 text-green-700 p-2 rounded mt-4">Password changed successfully!</div>
+    {% endif %}
+</div>
+{% endblock %}

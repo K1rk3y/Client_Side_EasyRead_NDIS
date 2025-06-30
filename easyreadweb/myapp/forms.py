@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.forms import PasswordChangeForm
 
 class LoginForm(forms.Form):
     email = forms.EmailField(
@@ -49,3 +50,5 @@ class PDFUploadForm(forms.Form):
         })
     )
     submit = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+# Use Django's built-in PasswordChangeForm for password change

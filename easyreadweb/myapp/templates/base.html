@@ -23,6 +23,7 @@
                     {% if user.is_authenticated %}
                         <a href="{% url 'home' %}">🏠 Home</a>
                         <a href="{% url 'process' %}">📤 Upload</a>
+                        <a href="{% url 'account' %}">👤 Account</a>
                         <a href="{% url 'admin:index' %}">⚙️ Admin</a>
                         <a href="{% url 'user_guide' %}">📖 User Guide</a>
                     {% endif %}
@@ -38,6 +39,7 @@
                         <a href="{% url 'user_guide' %}" class="btn btn-outline">📖 User Guide</a>
                         <a href="{% url 'login' %}" class="btn btn-outline">🔐 Login</a>
                         <a href="{% url 'signup' %}" class="btn btn-primary">✨ Sign Up</a>
+                        <!-- Admin link hidden for anonymous users -->
                     {% endif %}
                 </div>
             </nav>
