@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}About Us | Easy Read Intelife{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow mt-8">
+    <h1 class="text-3xl font-bold mb-4 text-center">About Us</h1>
+    <p class="mb-6 text-center text-gray-700">
+        <strong>Easy Read Intelife</strong> is dedicated to empowering people with disabilities by making information accessible and easy to understand. Our platform transforms complex documents into easy read formats, supporting independence and inclusion for all.
+    </p>
+    <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-2">Our Mission</h2>
+        <p class="mb-4">To provide innovative, accessible solutions that enable people with disabilities to access, understand, and use information in their daily lives.</p>
+        <h2 class="text-xl font-semibold mb-2">Who We Are</h2>
+        <p class="mb-4">We are a team of passionate professionals, support workers, and technologists, co-developing with the <a href="https://mccuskercentre.uwa.edu.au/" class="text-blue-600 hover:underline" target="_blank">Mccusker Centre for Citizenship</a> and in partnership with <a href="https://intelife.org/" class="text-blue-600 hover:underline" target="_blank">Intelife</a>. Our goal is to break down barriers to information for people of all abilities.</p>
+        <h2 class="text-xl font-semibold mb-2">Our Values</h2>
+        <ul class="list-disc list-inside mb-4 text-gray-700">
+            <li>Accessibility</li>
+            <li>Inclusion</li>
+            <li>Empowerment</li>
+            <li>Innovation</li>
+            <li>Collaboration</li>
+        </ul>
+        <h2 class="text-xl font-semibold mb-2">Contact & Support</h2>
+        <p>For more information, visit our <a href="{% url 'contact' %}" class="text-blue-600 hover:underline">Contact Us</a> page or reach out to our team directly.</p>
+    </div>
+    <div class="flex justify-center mt-8">
+        <img src="https://intelife.org/wp-content/uploads/2019/11/intelife-logo.svg" alt="Intelife Logo" class="h-12 mr-6">
+        <img src="https://mccuskercentre.uwa.edu.au/img/mccusker-logo2.png" alt="Mccusker Centre Logo" class="h-12">
+    </div>
+</div>
+{% endblock %}
