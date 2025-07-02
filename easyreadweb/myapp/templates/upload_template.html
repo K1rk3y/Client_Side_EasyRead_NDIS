@@ -1,41 +1,37 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
-<style>
-    .container {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        border: 1px solid #ccc;
-        padding: 20px;
-    }
-    .upload-template-wrapper {
-        display: flex;
-        height: 100vh;
-    }
-    form {
-        text-align: center;
-    }
-    label {
-        display: block;
-        margin-bottom: 10px;
-        font-weight: bold;
-    }
-    input[type="file"] {
-        margin-bottom: 10px;
-    }
-    .button-group {
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-        align-items: center;
-    }
-    button:disabled, select:disabled {
-        background-color: #f0f0f0;
-        cursor: not-allowed;
-    }
-</style>
+<link rel="stylesheet" href="{% static 'upload_template.css' %}">
+
+<div class="upload-template-wrapper">
+    <div class="upload-section">
+        <form id="uploadForm" action="{% url 'upload_template' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="docx_file">STEP ONE <br>
+                <br> Upload Template Here (DOCX or PDF):
+            </label>
+            <input type="file" id="docx_file" name="docx_file" accept=".docx,.pdf" onchange="lockOption()">
+            <div class="button-group">
+                <button type="submit">Upload</button>
+                <button type="button" id="clear_button" onclick="clearFile()" disabled>Clear</button>
+            </div>
+        </form>
+    </div>
+    <div class="upload-section">
+        <form id="conversionForm" action="{% url 'upload_template' %}" method="POST">
+            {% csrf_token %}
+            <label for="conversion_option">STEP TWO <br>
+                <br>Choose Desired Format:</label>
+            <select id="conversion_option" name="conversion_option" required>
+                <option value="" disabled selected>Select an option</option>
+                <option value="PDF">PDF</option>
+                <option value="DOCX">DOCX</option>
+            </select>
+            <button type="submit" id="confirm_button">Confirm</button>
+        </form>
+    </div>
+</div>
+
 <script>
     function lockOption() {
         const fileInput = document.getElementById('docx_file');
@@ -71,29 +67,4 @@
         clearButton.disabled = true;
     }
 </script>
-<div class="upload-template-wrapper">
-    <div class="container">
-        <form id="uploadForm" action="{% url 'upload_template' %}" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <label for="docx_file">Upload Template Here (DOCX or PDF):</label>
-            <input type="file" id="docx_file" name="docx_file" accept=".docx,.pdf" onchange="lockOption()">
-            <div class="button-group">
-                <button type="submit">Upload</button>
-                <button type="button" id="clear_button" onclick="clearFile()" disabled>Clear</button>
-            </div>
-        </form>
-    </div>
-    <div class="container">
-        <form id="conversionForm" action="{% url 'upload_template' %}" method="POST">
-            {% csrf_token %}
-            <label for="conversion_option">Choose Desired Format:</label>
-            <select id="conversion_option" name="conversion_option" required>
-                <option value="" disabled selected>Select an option</option>
-                <option value="PDF">PDF</option>
-                <option value="DOCX">DOCX</option>
-            </select>
-            <button type="submit" id="confirm_button">Confirm</button>
-        </form>
-    </div>
-</div>
 {% endblock %}

@@ -1,0 +1,203 @@
+/* Main wrapper with proper spacing */
+.upload-template-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: calc(100vh - 120px);
+    padding: 3rem 2rem;
+    gap: 3rem;
+    max-width: 1200px;
+    margin: 2rem auto 0;
+    box-sizing: border-box;
+}
+
+/* Upload section styling */
+.upload-section {
+    flex: 1;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 2rem;
+    border: 2px solid #e9ecef;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    min-height: 400px;
+}
+
+.upload-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 40px rgba(243, 127, 31, 0.15);
+    border-color: #f37f1f;
+}
+
+/* Form styling */
+form {
+    text-align: center;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* Label styling */
+label {
+    display: block;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #495057;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+/* File input styling */
+input[type="file"] {
+    margin-bottom: 1.5rem;
+    padding: 0.8rem;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    width: 100%;
+    max-width: 300px;
+    transition: all 0.3s ease;
+}
+
+input[type="file"]:hover {
+    border-color: #f37f1f;
+    background-color: rgba(243, 127, 31, 0.05);
+}
+
+/* Select dropdown styling */
+select {
+    padding: 12px 16px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    background-color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #495057;
+    width: 100%;
+    max-width: 250px;
+    transition: all 0.3s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+}
+
+select:focus {
+    outline: none;
+    border-color: #f37f1f;
+    box-shadow: 0 0 0 3px rgba(243, 127, 31, 0.1);
+}
+
+/* Button group styling */
+.button-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+/* Button styling */
+button {
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 100px;
+}
+
+/* Primary button (Upload/Confirm) */
+button[type="submit"] {
+    background: linear-gradient(135deg, #f37f1f 0%, #d96b0a 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(243, 127, 31, 0.25);
+}
+
+button[type="submit"]:hover:not(:disabled) {
+    background: linear-gradient(135deg, #d96b0a 0%, #bf5e05 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(243, 127, 31, 0.35);
+}
+
+/* Secondary button (Clear) */
+button[type="button"] {
+    background: #6c757d;
+    color: white;
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.25);
+}
+
+button[type="button"]:hover:not(:disabled) {
+    background: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.35);
+}
+
+/* Disabled state */
+button:disabled, select:disabled {
+    background-color: #e9ecef !important;
+    color: #6c757d !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+    opacity: 0.6;
+}
+
+/* Focus states for accessibility */
+button:focus, input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(243, 127, 31, 0.25);
+}
+
+/* Responsive design */
+@media (max-width: 992px) {
+    .upload-template-wrapper {
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+        padding: 2rem 1rem;
+    }
+    
+    .upload-section {
+        max-width: 100%;
+        width: 100%;
+        min-height: 350px;
+    }
+}
+
+@media (max-width: 768px) {
+    .upload-template-wrapper {
+        padding: 1.5rem 1rem;
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+    
+    .upload-section {
+        padding: 2rem 1.5rem;
+        min-height: 300px;
+    }
+    
+    button {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        min-width: 80px;
+    }
+    
+    .button-group {
+        gap: 0.8rem;
+    }
+}
