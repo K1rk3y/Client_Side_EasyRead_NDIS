@@ -1,83 +1,321 @@
-/* Container styles */
-.container {
+/* Main container for option cards below navbar */
+.container-with-static-navbar {
     display: flex;
     flex-direction: row;
     width: 100%;
-    height: 100vh; /* Full viewport height */
-    overflow: hidden; /* Prevent unwanted scrolling */
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: calc(100vh - 120px); /* Adjust based on your navbar height */
+    padding: 2rem;
+    gap: 2rem;
+    justify-content: center;
+    align-items: stretch; /* Equal height containers */
+    box-sizing: border-box;
 }
 
-/* Equal flex proportions for left and right option containers */
+/* Add spacing below navbar */
+.content-below-navbar {
+    margin-top: 2rem;
+}
+
+/* Option container styling */
 .option-container {
-    flex: 1; /* Ensures both containers take up equal space */
+    flex: 1;
+    max-width: 450px;
     display: flex;
-    flex-direction: column; /* Stack content vertically */
-    justify-content: center;
+    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
     text-align: center;
-    padding: 20px;
-    border: 2px solid #ddd;
-    border-radius: 10px;
-    background-color: white;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
-    margin: 0; /* Remove any margin to prevent size discrepancies */
+    padding: 2.5rem;
+    border: 2px solid #e9ecef;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
 }
 
-/* On hover, keep scaling consistent */
+/* Hover effect with subtle animations */
+.option-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg,  #f37f1f, #d96b0a);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.2s ease;
+}
+
+.option-container:hover::before {
+    transform: scaleX(1);
+}
+
 .option-container:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-8px);
+    box-shadow: 0 16px 40px rgba(243, 127, 31, 0.15);
+    border-color: #f37f1f;
 }
 
-/* Button styling for Option 1 and 2 */
+/* Top content wrapper */
+.option-content-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+/* Form styling */
 .option-form {
-    margin-bottom: 10px; /* Add space between button and description */
+    margin-bottom: 1.5rem;
+    width: 100%;
 }
 
-/* Button styling for Option 1 and 2 */
+/* Enhanced button styling */
 .select-button {
-    padding: 12.5px 20px;/* Adjust padding for taller buttons */
-    font-size: 1rem; /* Increase font size */
-    font-weight: bold;
-    margin: 0; /* Center the button */
-    display: inline-flex; /* Align button horizontally */
-    white-space: nowrap; /* Prevent text wrapping */
-    justify-content: center; /* Center text horizontally */
+    padding: 18px 36px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: block;
+    margin: 0 auto;
+    white-space: nowrap;
     color: #fff;
-    background-color: #007BFF; /* Blue button background */
+    background: linear-gradient(135deg, #f37f1f 0%, #d96b0a 100%);
     border: none;
-    border-radius: 10px; /* Slightly larger border radius for rounded corners */
+    border-radius: 50px;
     cursor: pointer;
     text-align: center;
     text-transform: uppercase;
-    transition: background-color 0.2s, transform 0.2s;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for emphasis */
-    width: 80%; /* Set button width to 80% of the container */
-    max-width: 300px; /* Add a maximum width to prevent overly large buttons */
+    letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 6px 20px rgba(243, 127, 31, 0.25);
+    width: 100%;
+    max-width: 200px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Button shine effect */
+.select-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.6s;
+}
+
+.select-button:hover::before {
+    left: 100%;
 }
 
 .select-button:hover {
-    background-color: #0056b3;
-    transform: translateX(2.5px) translateY(-2.5px); /* Slightly lift on hover */
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* Enhance shadow on hover */
+    background: linear-gradient(135deg, #d96b0a 0%, #bf5e05 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(243, 127, 31, 0.35);
 }
 
-/* Description styling */
+.select-button:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 15px rgba(243, 127, 31, 0.3);
+}
+
+/* Description text styling */
 .option-description {
-    margin: 10px 0; /* Add spacing above and below the description */
+    margin: 1.5rem 0 2rem 0;
     font-size: 1.1rem;
-    color: #000;
+    color: #495057;
     text-align: center;
-    max-width: 80%; /* Restrict width for better readability */
+    line-height: 1.6;
+    max-width: 100%;
+    font-weight: 400;
 }
 
-/* Ensure images inside the containers are consistently sized */
+/* Image container with better visual hierarchy */
+.option-image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    flex-grow: 1;
+    min-height: 250px;
+    padding: 1.5rem;
+    background: radial-gradient(circle at center, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    border: 1px solid #dee2e6;
+}
+
+/* Enhanced image styling */
 .option-image {
-    width: 80%; /* Use the same width for both images */
-    max-width: 300px; /* Limit the maximum size */
-    height: auto; /* Maintain aspect ratio */
-    max-height: 70%; /* Prevent images from exceeding the container */
-    border-radius: 5px;
-    object-fit: contain; /* Ensures the image fits within the bounds */
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    max-height: 280px;
+    border-radius: 10px;
+    object-fit: contain;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    border: 2px solid #fff;
+}
+
+.option-image:hover {
+    transform: scale(1.03);
+}
+
+/* Loading animation for smooth entry */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.option-container {
+    animation: slideInUp 0.6s ease-out;
+}
+
+.option-container:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+/* Responsive design for different screen sizes */
+@media (max-width: 992px) {
+    .container-with-static-navbar {
+        max-width: 100%;
+        padding: 1.5rem;
+        gap: 1.5rem;
+    }
+    
+    .option-container {
+        max-width: 400px;
+        padding: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .container-with-static-navbar {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 2rem;
+        align-items: center;
+        min-height: auto;
+    }
+    
+    .option-container {
+        max-width: 100%;
+        width: 100%;
+        padding: 2rem 1.5rem;
+    }
+    
+    .select-button {
+        padding: 16px 32px;
+        font-size: 1rem;
+        max-width: 180px;
+    }
+    
+    .option-description {
+        font-size: 1rem;
+        margin: 1rem 0 1.5rem 0;
+    }
+    
+    .option-image-container {
+        min-height: 200px;
+        padding: 1rem;
+    }
+    
+    .option-image {
+        max-width: 280px;
+        max-height: 220px;
+    }
+}
+
+@media (max-width: 480px) {
+    .content-below-navbar {
+        margin-top: 1rem;
+    }
+    
+    .container-with-static-navbar {
+        padding: 0.5rem;
+        gap: 1.5rem;
+    }
+    
+    .option-container {
+        padding: 1.5rem 1rem;
+        border-radius: 12px;
+    }
+    
+    .select-button {
+        padding: 14px 28px;
+        font-size: 0.9rem;
+        max-width: 160px;
+    }
+    
+    .option-image-container {
+        min-height: 180px;
+    }
+}
+
+/* Focus states for accessibility */
+.select-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* Print styles */
+@media print {
+    .option-container:hover {
+        transform: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .select-button {
+        background: #007BFF !important;
+        box-shadow: none !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .option-container {
+        border-color: #000;
+        background: #fff;
+    }
+    
+    .select-button {
+        background: #0056b3;
+        border: 2px solid #000;
+    }
+    
+    .option-description {
+        color: #000;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .option-container,
+    .select-button,
+    .option-image {
+        transition: none;
+        animation: none;
+    }
+    
+    .option-container:hover {
+        transform: none;
+    }
+    
+    .select-button:hover {
+        transform: none;
+    }
 }
