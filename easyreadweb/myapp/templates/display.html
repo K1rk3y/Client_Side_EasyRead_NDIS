@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'pdf_displayer.css' %}">
-<div class="container">
+<div class="display-wrapper">
     <!-- Left side displaying the PDF page -->
     <div class="left">
         <div class="pdf-container">
@@ -13,40 +13,50 @@
             </div>
         </div>
     </div>
+    
     <!-- Right side containing editable text boxes -->
     <div class="right">
         <form action="{% url 'submit' %}" method="POST">
             {% csrf_token %}
             <input type="hidden" name="page" id="currentPageInput" value="{{ current_page }}">
+            
             {% for box_id, content in text_boxes.items %}
             <div class="text-box">
-                <textarea name="{{ box_id }}" id="{{ box_id }}" rows="3" oninput="adjustHeight(this)">{{ content }}</textarea>
+                <textarea name="{{ box_id }}" id="{{ box_id }}" rows="3" oninput="adjustHeight(this)" placeholder="Enter text for {{ box_id }}...">{{ content }}</textarea>
             </div>
             {% endfor %}
-            <button type="submit" class="save-button">Save Changes</button>
-            <button type="button" class="download-button" onclick="downloadPDF()">Download PDF</button>
+            
+            <div class="button-container">
+                <button type="submit" class="save-button">Save Changes</button>
+                <button type="button" class="download-button" onclick="downloadPDF()">Download PDF</button>
+            </div>
         </form>
     </div>
 </div>
+
 <script>
     let currentPage = {{ current_page }};
     const totalPages = {{ total_pages }};
+    
     function navigatePage(direction) {
         currentPage += direction;
         if (currentPage < 1) currentPage = 1;
         if (currentPage > totalPages) currentPage = totalPages;
         window.location.href = `/display?page=${currentPage}`;
     }
+    
     function adjustHeight(textArea) {
         textArea.style.height = 'auto';
         textArea.style.height = textArea.scrollHeight + 'px';
     }
+    
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('textarea').forEach(textArea => {
             textArea.addEventListener('input', () => adjustHeight(textArea));
             adjustHeight(textArea);
         });
     });
+    
     function downloadPDF() {
         window.location.href = '{% url 'download_pdf' %}';
     }
