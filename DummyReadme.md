@@ -65,7 +65,41 @@ python ./easyreadweb/manage.py makemigrations
 python ./easyreadweb/manage.py migrate
 ```
 
-8. Run the server
+8. Install PostgreSQL 16.9-1  
+Download and install PostgreSql 16.9 from official website
+Add psql bin to path
+On Mac:
+```
+echo 'export PATH="/Library/PostgreSQL/16/bin:$PATH"' >> ~/.zshrc
+```
+
+Test psql version and successfully installed:
+```
+psql --version
+```
+
+Run the following in the terminal:
+```
+psql -U postgres
+(enter the admin password you set during setup of postgreSql)
+CREATE DATABASE easyread;
+CREATE USER easyreaddj WITH PASSWORD 'your_password'; 
+(WARNING: Please change password here for security and under easyreadweb/easyreadweb/settings.py object DATABASES{'PASSWORD': 'your_password'})
+GRANT ALL PRIVILEGES ON DATABASE easyread TO easyreaddj;
+\c easyread
+GRANT ALL ON SCHEMA public TO easyreaddj;
+ALTER SCHEMA public OWNER TO easyreaddj;
+\q
+```
+
+Start migrate the db to PostgreSql
+```
+python ./easyreadweb/manage.py migrate
+```
+
+
+
+9. Run the server
 
 Django
 ```
