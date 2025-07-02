@@ -1,20 +1,21 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
     <!-- Hero Section - -->
     <section class="hero-section">
         <div class="hero-content">
             <h1 class="hero-title">Transform Documents to Easy Read Format</h1>
             <p class="hero-subtitle">
-                Empowering people with disabilities to access information easily. 
+                Empowering people with disabilities to access information easily.
                 Convert complex PDF and DOCX documents into easy-to-understand formats 
                 with our AI-powered tools.
             </p>
             <div class="hero-buttons">
-                <button id="advanceModeBtn" class="btn btn-primary hero-btn" onclick="window.location.href='{% url 'process' %}'">
+                <button id="advanceModeBtn" class="btn btn-primary hero-btn" onclick="window.location.href='{% url "process" %}'">
                     Advance Mode<br>
                     <span style="font-size: 0.85em; display: block; margin-top: 2px;">(For support workers)</span>
                 </button>
-                <button id="simpleModeBtn" class="btn btn-outline hero-btn" onclick="window.location.href='{% url 'process' %}'">
+                <button id="simpleModeBtn" class="btn btn-outline hero-btn" onclick="window.location.href='{% url "process" %}'">
                     Simple Mode
                 </button>
             </div>
@@ -30,4 +31,14 @@
     <div class="trust-section">
         <p>Trusted by disability support organizations around Australia</p>
     </div>
+    <!-- Left bottom corner image -->
+    <img src="{% static 'HomepagePic/Home1.jpg' %}"
+        alt="Home1"
+        class="fixed left-0 bottom-10 w-[80vh] h-[50vh] object-cover z-0 pointer-events-none select-none" />
+
+    <!-- Right bottom corner image -->
+    <img src="{% static 'HomepagePic/Home2.png' %}"
+        alt="Home2"
+        class="fixed right-5 bottom-2 w-[40vw] h-[50vh] object-cover z-0 pointer-events-none select-none" />
+
 {% endblock %}
