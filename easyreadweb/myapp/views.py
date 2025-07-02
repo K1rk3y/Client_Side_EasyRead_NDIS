@@ -14,12 +14,15 @@ from core.word_generation import create_docx
 from myapp.summariser import summarise
 from core.generate_images import generate_images_from_prompts
 from django.conf import settings 
+from django.contrib.auth.forms import PasswordChangeForm
+from .models import CustomUser
+import base64
 
 # Add parent directory to path to access core module
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 # Get the user model
-User = get_user_model()
+User = CustomUser
 
 # Home page view
 def home(request):
@@ -327,3 +330,32 @@ def docx_view(request):
 # User guide view
 def user_guide(request):
     return render(request, 'user_guide.html')
+
+@login_required
+def account_view(request):
+    password_changed = False
+    if request.method == 'POST':
+        if 'update_pic' in request.POST:
+            file = request.FILES.get('profilepic')
+            if file:
+                b64img = base64.b64encode(file.read()).decode('utf-8')
+                request.user.profilepic = b64img
+                request.user.save()
+                messages.success(request, 'Profile picture updated!')
+            form = PasswordChangeForm(request.user)  # Always define form
+        else:
+            form = PasswordChangeForm(request.user, request.POST)
+            if form.is_valid():
+                user = form.save()
+                from django.contrib.auth import update_session_auth_hash
+                update_session_auth_hash(request, user)
+                password_changed = True
+            else:
+                messages.error(request, 'Please correct the errors below.')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'account.html', {
+        'user': request.user,
+        'form': form,
+        'password_changed': password_changed
+    })

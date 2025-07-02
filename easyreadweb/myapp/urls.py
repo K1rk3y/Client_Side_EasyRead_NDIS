@@ -17,5 +17,6 @@ urlpatterns = [
     path('upload/', views.upload_file_view, name='upload_file'),
     path('docx/', views.docx_view, name='docx'),
     path('userguide/', views.user_guide, name='user_guide'),
+    path('account/', views.account_view, name='account'),
 
 ]
