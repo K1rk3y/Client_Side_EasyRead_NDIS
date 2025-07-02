@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Contact Us | Easy Read Intelife{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow mt-8">
+    <h1 class="text-3xl font-bold mb-4 text-center">Contact Us</h1>
+    <p class="mb-6 text-center text-gray-700">We'd love to hear from you! Please use the form below or reach out using the contact details provided.</p>
+    <div class="mb-8 flex flex-col md:flex-row md:justify-between gap-8">
+        <div class="flex-1">
+            <h2 class="text-xl font-semibold mb-2">Contact Details</h2>
+            <p class="mb-1"><strong>Phone:</strong> <a href="tel:+61862532500" class="text-blue-600 hover:underline">(08) 6253 2500</a></p>
+            <p class="mb-1"><strong>Email:</strong> <a href="mailto:info@intelife.org" class="text-blue-600 hover:underline">info@intelife.org</a></p>
+            <p class="mb-1"><strong>Address:</strong><br>Unit 1, 386 Scarborough Beach Road<br>Osborne Park WA 6017</p>
+            <p class="mb-1"><strong>Website:</strong> <a href="https://intelife.org" class="text-blue-600 hover:underline">intelife.org</a></p>
+        </div>
+        <div class="flex-1">
+            <h2 class="text-xl font-semibold mb-2">Contact Form</h2>
+            <form action="#" method="post" class="space-y-4">
+                <input type="text" name="name" placeholder="Your Name" class="w-full border border-gray-300 rounded px-3 py-2" required>
+                <input type="email" name="email" placeholder="Your Email" class="w-full border border-gray-300 rounded px-3 py-2" required>
+                <textarea name="message" placeholder="Your Message" class="w-full border border-gray-300 rounded px-3 py-2" rows="4" required></textarea>
+                <button type="submit" class="btn btn-primary w-full">Send Message</button>
+            </form>
+        </div>
+    </div>
+    <div class="mt-8">
+        <iframe class="w-full rounded-lg" height="300" frameborder="0" style="border:0" src="https://www.google.com/maps?q=Unit+1,+386+Scarborough+Beach+Road,+Osborne+Park+WA+6017&output=embed" allowfullscreen></iframe>
+    </div>
+</div>
+{% endblock %}
