@@ -72,6 +72,10 @@ On Mac:
 ```
 echo 'export PATH="/Library/PostgreSQL/16/bin:$PATH"' >> ~/.zshrc
 ```
+On Linux:
+```
+sudo -u postgres /usr/lib/postgresql/16/bin/pg_ctl -D /var/lib/postgresql/16/main -l logfile start
+```
 
 Test psql version and successfully installed:
 ```
@@ -85,12 +89,12 @@ psql -U postgres
 CREATE DATABASE easyread;
 CREATE USER easyreaddj WITH PASSWORD 'your_password'; 
 (WARNING: Please change password here for security and under easyreadweb/easyreadweb/settings.py object DATABASES{'PASSWORD': 'your_password'})
-GRANT ALL PRIVILEGES ON DATABASE easyread TO easyreaddj;
+
+\q
+```GRANT ALL PRIVILEGES ON DATABASE easyread TO easyreaddj;
 \c easyread
 GRANT ALL ON SCHEMA public TO easyreaddj;
 ALTER SCHEMA public OWNER TO easyreaddj;
-\q
-```
 
 Start migrate the db to PostgreSql
 ```
