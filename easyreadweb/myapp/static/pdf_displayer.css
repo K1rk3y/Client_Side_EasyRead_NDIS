@@ -1,16 +1,13 @@
-/* General reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-/* Container styles */
-.container {
+/* File: easyreadweb/myapp/static/pdf_displayer.css */
+/* Display page specific styles */
+.display-wrapper {
     display: flex;
-    flex-direction: row; /* Vertical split */
-    width: 100%;
-    height: 100vh;
+    margin-top: 10px; /* Push content below fixed navbar */
+    gap: 20px;
+    padding: 20px;
+    max-width: 100vw;
+    overflow-x: hidden;
+    height: 100%; /* Full height minus navbar */
 }
 
 /* Left side for PDF image */
@@ -19,9 +16,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #f4f4f4;
-    border-right: 2px solid #ddd;
-    position: relative; /* Enables absolute positioning for child elements */
+    background-color: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    position: relative;
+    height: 100%;
+    overflow: hidden;
 }
 
 /* PDF container and image */
@@ -31,109 +31,200 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    position: relative; /* Keeps buttons positioned relative to the image */
+    position: relative;
+    padding: 20px;
 }
 
 .pdf-container img {
     width: 100%;
     height: auto;
     object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 /* Navigation buttons container */
 .navigation {
-    position: absolute; /* Overlay on the image */
-    bottom: 10px; /* Distance from the bottom of the container */
-    right: 10px; /* Distance from the right of the container */
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
     display: flex;
-    gap: 5px; /* Space between buttons */
+    gap: 10px;
 }
 
-/* Button styling */
-button {
-    padding: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
+/* Navigation button styling */
+.navigation button {
+    padding: 12px;
+    font-size: 18px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #f37f1f 0%, #d96b0a 100%);
     color: white;
     border: none;
-    border-radius: 50%; /* Circular buttons */
+    border-radius: 50%;
     cursor: pointer;
-    width: 40px; /* Fixed width */
-    height: 40px; /* Fixed height */
+    width: 45px;
+    height: 45px;
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(243, 127, 31, 0.25);
 }
 
-button:hover {
-    background-color: rgba(0, 0, 0, 0.9);
+.navigation button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #d96b0a 0%, #bf5e05 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(243, 127, 31, 0.35);
 }
 
-button:disabled {
-    background-color: rgba(128, 128, 128, 0.5);
+.navigation button:disabled {
+    background: #6c757d;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.25);
 }
 
 /* Right side for text boxes */
 .right {
     flex: 1;
-    background-color: #eaeaea;
+    background-color: #ffffff;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 25px;
     display: flex;
-    flex-direction: column; /* Stack text boxes vertically */
-    justify-content: space-evenly; /* Space text boxes evenly */
-    align-items: flex-start; /* Align text boxes to the left */
-    padding: 10px;
+    flex-direction: column;
+    gap: 20px;
     height: 100%;
+    overflow-y: auto;
 }
 
 /* Text box styling */
+/* Text boxes container */
+.text-boxes-container {
+    flex: 1; /* Fill available space */
+    overflow-y: auto; /* Only text box area can scroll */
+    margin-bottom: 15px;
+    padding-right: 5px; /* Leave space for scrollbar */
+}
+
 .text-box {
-    width: 100%; /* Ensure text boxes span their container */
+    width: 100%;
+    margin-bottom: 15px;
 }
 
 .text-box textarea {
-    width: 250%; /* Adjust width as needed, aligned left */
-    margin-left: 10px; /* Add some space to the left */
-    margin-right: 10px; /* Add some space to the right */
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    width: 100%;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
     font-size: 16px;
-    padding: 10px;
-    resize: none; /* Disable manual resizing */
-    overflow: hidden; /* Prevent scrollbars */
-    min-height: 50px; /* Ensure a minimum height for usability */
-    max-width: 250%; /* Prevent text boxes from exceeding container width */
-    box-sizing: border-box; /* Include padding and border in size calculation */
+    font-weight: 500;
+    padding: 15px;
+    resize: none;
+    overflow: hidden;
+    min-height: 80px;
+    font-family: 'Roboto', sans-serif;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
 }
 
-/* Save button styling */
-button.save-button {
-    margin-left: 10px; /* Add some space to the left */
-    padding: 25px 45px;
+.text-box textarea:focus {
+    outline: none;
+    border-color: #f37f1f;
+    box-shadow: 0 0 0 3px rgba(243, 127, 31, 0.1);
+    background-color: white;
+}
+
+.text-box textarea:hover {
+    border-color: #f37f1f;
+    background-color: white;
+}
+
+/* Button container */
+.button-container {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #e9ecef;
+}
+
+/* Action button styling */
+.save-button, .download-button {
+    padding: 15px 30px;
     font-size: 16px;
-    background-color: #26952a;
-    color: white;
+    font-weight: 900;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 140px;
 }
 
-button.save-button:hover {
-    background-color: #3e7040;
+.save-button {
+    background: linear-gradient(135deg, #28a745 0%, #20c928 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.25);
 }
 
-button.download-button {
-    margin-left: 10px; /* Add some space to the left */
-    margin-top: 5px; /* Add some space to the top */
-    padding: 25px 45px;
-    font-size: 16px;
-    background-color: #007BFF; /* Blue background for the download button */
-    color: white; /* White text */
-    border-radius: 5px;
-    cursor: pointer; /* Pointer cursor */
+.save-button:hover {
+    background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.35);
 }
 
-button.download-button:hover {
-    background-color: #0056b3;
+.download-button {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.25);
+}
+
+.download-button:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.35);
+}
+
+/* Responsive design */
+@media (max-width: 992px) {
+    .display-wrapper {
+        flex-direction: column;
+        margin-top: 60px;
+        padding: 15px;
+    }
+    
+    .left {
+        min-height: 400px;
+    }
+    
+    .right {
+        max-height: none;
+    }
+    
+    .button-container {
+        flex-direction: column;
+    }
+    
+    .save-button, .download-button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .display-wrapper {
+        padding: 10px;
+        gap: 15px;
+    }
+    
+    .navigation button {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .text-box textarea {
+        font-size: 14px;
+        padding: 12px;
+    }
 }
