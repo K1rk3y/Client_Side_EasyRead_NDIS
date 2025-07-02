@@ -359,3 +359,9 @@ def account_view(request):
         'form': form,
         'password_changed': password_changed
     })
+
+def about_view(request):
+    return render(request, 'about.html')
+
+def contact_view(request):
+    return render(request, 'contact.html')

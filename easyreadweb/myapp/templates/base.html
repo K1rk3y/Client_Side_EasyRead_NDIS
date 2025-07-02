@@ -19,14 +19,15 @@
                 </a>
                 
                 <div class="nav-links">
-                    
                     {% if user.is_authenticated %}
                         <a href="{% url 'home' %}">🏠 Home</a>
                         <a href="{% url 'process' %}">📤 Upload</a>
                         <a href="{% url 'account' %}">👤 Account</a>
-                        <a href="{% url 'admin:index' %}">⚙️ Admin</a>
+                        <!-- <a href="{% url 'admin:index' %}">⚙️ Admin</a> -->
                         <a href="{% url 'user_guide' %}">📖 User Guide</a>
                     {% endif %}
+                    <a href="{% url 'about' %}" class="nav-link">ℹ️ About Us</a>
+                    <a href="{% url 'contact' %}" class="nav-link">✉️ Contact Us</a>
                     
                 </div>
                 
