@@ -3,10 +3,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: 'Roboto', sans-serif;
   background: white;
   min-height: 100vh;
 }
@@ -49,6 +50,7 @@ nav {
   text-decoration: none;
   color: #4b5563;
   font-weight: 500;
+  font-size: 20px;
   transition: color 0.3s ease;
 }
 
