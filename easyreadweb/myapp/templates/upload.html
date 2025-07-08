@@ -1,54 +1,99 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="min-h-screen flex items-center justify-center bg-gray-100">
-    <form
-        id="uploadForm"
-        action="{% url 'process' %}"
-        method="post"
-        enctype="multipart/form-data"
-        class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md space-y-4"
-    >
+    <form id="uploadForm" action="{% url 'process' %}" method="post" enctype="multipart/form-data"
+        class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md space-y-4">
         {% csrf_token %}
         {{ form.as_p }}
+        <div>
+            <p>Standard mode: Normal use / For supporter workers</p>
+        </div>
+        <div>
+            <p>Simple mode: Accessibility enhanced</p>
+        </div>
+        <div class="flex flex-row items-center gap-4 mb-6">
+            <button id="advanceModeBtn" class="btn btn-primary hero-btn"
+                onclick="window.location.href='{% url 'process' %}'" type="button">
+                Standard Mode<br>
+                <span style="font-size: 0.85em; display: block; margin-top: 2px;"></span>
+            </button>
+            <button id="simpleModeBtn" class="btn btn-outline hero-btn"
+                onclick="window.location.href='{% url 'process' %}'" type="button">
+                Simple Mode
+            </button>
+        </div>
+        <div>
+            <p>Switch: Picture style</p>
+        </div>
+
+        <div class="flex items-center gap-4 mb-6">
+            <label for="styleSwitch" class="font-medium">Picture style:</label>
+            <button type="button" id="styleSwitchBtn" class="relative inline-flex items-center h-8 rounded-full w-16 bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <span id="switchKnob" class="inline-block h-7 w-7 bg-white rounded-full shadow transform transition-transform translate-x-1"></span>
+            </button>
+            <span id="switchText" class="text-base font-semibold text-gray-700 select-none">Realistic</span>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const btn = document.getElementById('styleSwitchBtn');
+                const knob = document.getElementById('switchKnob');
+                const text = document.getElementById('switchText');
+                let isHandDrawing = false;
+                btn.addEventListener('click', function() {
+                    isHandDrawing = !isHandDrawing;
+                    if (isHandDrawing) {
+                        knob.style.transform = 'translateX(2.25rem)';
+                        btn.classList.remove('bg-gray-300');
+                        btn.classList.add('bg-blue-400');
+                        text.textContent = 'Hand Drawing';
+                    } else {
+                        knob.style.transform = 'translateX(0.25rem)';
+                        btn.classList.remove('bg-blue-400');
+                        btn.classList.add('bg-gray-300');
+                        text.textContent = 'Realistic';
+                    }
+                });
+            });
+        </script>
+
         <div id="pdfDisplay" class="border border-dashed border-gray-300 rounded-lg p-4 text-gray-500 text-center">
             <!-- Placeholder for the PDF -->
             <p class="text-sm">The PDF will be displayed here</p>
-            <object id="pdfIframe" class="hidden" width="100%" height="500px" type="application/pdf" style="border: none;">
-              <p>Your browser does not support PDF preview.</p>
+            <object id="pdfIframe" class="hidden" width="100%" height="500px" type="application/pdf"
+                style="border: none;">
+                <p>Your browser does not support PDF preview.</p>
             </object>
         </div>
-        <button
-            type="submit"
-            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
-        >
+        <button type="submit"
+            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2">
             Upload
         </button>
     </form>
 
     <script>
-      document.getElementById('pdfInput').addEventListener('change', async function(event) {
-      const file = event.target.files[0];
+        document.getElementById('pdfInput').addEventListener('change', async function (event) {
+            const file = event.target.files[0];
 
-      if (!file) {
-          alert("Please select a file!");
-          return;
-      }
+            if (!file) {
+                alert("Please select a file!");
+                return;
+            }
 
-      const formData = new FormData();
-      formData.append('pdf_file', file);
+            const formData = new FormData();
+            formData.append('pdf_file', file);
 
-      try {
-          const response = await fetch("{% url 'upload_file' %}", {
-              method: 'POST',
-              body: formData,
-          });
+            try {
+                const response = await fetch("{% url 'upload_file' %}", {
+                    method: 'POST',
+                    body: formData,
+                });
 
-          const data = await response.json(); // Parse JSON response
-          if (response.ok) {
-              const fileUrl = data.file_url;
-              // Render the file dynamically in an iframe
-              const pdfDisplay = document.getElementById('pdfDisplay');
-              pdfDisplay.innerHTML = `
+                const data = await response.json(); // Parse JSON response
+                if (response.ok) {
+                    const fileUrl = data.file_url;
+                    // Render the file dynamically in an iframe
+                    const pdfDisplay = document.getElementById('pdfDisplay');
+                    pdfDisplay.innerHTML = `
                   <iframe 
                       src="${fileUrl}#toolbar=0"
                       width="100%"
@@ -56,12 +101,12 @@
                       style="border: none;">
                   </iframe>
               `;
-          }
-        } catch (error) {
-            console.error("Error:", error);
-            alert("An error occurred while uploading or converting the file.");
-        }
-      });
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred while uploading or converting the file.");
+            }
+        });
     </script>
 </div>
 {% endblock %}
