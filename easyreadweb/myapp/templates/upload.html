@@ -5,23 +5,7 @@
         class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md space-y-4">
         {% csrf_token %}
         {{ form.as_p }}
-        <div>
-            <p>Standard mode: Normal use / For supporter workers</p>
-        </div>
-        <div>
-            <p>Simple mode: Accessibility enhanced</p>
-        </div>
-        <div class="flex flex-row items-center gap-4 mb-6">
-            <button id="advanceModeBtn" class="btn btn-primary hero-btn"
-                onclick="window.location.href='{% url 'process' %}'" type="button">
-                Standard Mode<br>
-                <span style="font-size: 0.85em; display: block; margin-top: 2px;"></span>
-            </button>
-            <button id="simpleModeBtn" class="btn btn-outline hero-btn"
-                onclick="window.location.href='{% url 'process' %}'" type="button">
-                Simple Mode
-            </button>
-        </div>
+
         <div>
             <p>Switch: Picture style</p>
         </div>
