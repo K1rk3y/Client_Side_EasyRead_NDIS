@@ -17,6 +17,7 @@ from django.conf import settings
 from django.contrib.auth.forms import PasswordChangeForm
 from .models import CustomUser
 import base64
+import threading
 
 # Add parent directory to path to access core module
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -157,6 +158,10 @@ def process_view(request):
         form = PDFUploadForm(request.POST, request.FILES)
         if form.is_valid():
             # Save uploaded file
+            request.session['cancelled'] = False
+            request.session['progress'] = 0
+            request.session.save()
+
             pdf_file = request.FILES['pdf_file']
             upload_dir = os.path.join('static', 'uploads')
             os.makedirs(upload_dir, exist_ok=True)
@@ -169,7 +174,7 @@ def process_view(request):
             request.session.save()
             thread = threading.Thread(target=process_pdf_task, args=(request.session, pdf_path))
             thread.start()
-            return render(request, 'processing.html')
+            return render(request, 'upload_merged.html')
     else:
         form = PDFUploadForm()
     return render(request, 'upload.html', {'form': form})
@@ -177,7 +182,22 @@ def process_view(request):
 @login_required
 def progress_view(request):
     progress = request.session.get('progress', 0)
-    return JsonResponse({'progress': progress})
+    cancelled = request.session.get('cancelled', False)
+    return JsonResponse({
+        'progress': progress,
+        'cancelled': cancelled
+    })
+
+@csrf_exempt
+@login_required
+def cancel_processing_view(request):
+    if request.method == 'POST':
+        # Reset session progress
+        request.session['cancelled'] = True
+        request.session['progress'] = 0
+        request.session.save()
+        return JsonResponse({'success': True})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def logout_view(request):
     logout(request)

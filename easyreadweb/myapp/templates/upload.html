@@ -1,60 +1,143 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="min-h-screen flex items-center justify-center bg-gray-100">
-    <form id="uploadForm" action="{% url 'process' %}" method="post" enctype="multipart/form-data"
-        class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md space-y-4">
-        {% csrf_token %}
-        {{ form.as_p }}
+<div class="min-h-screen bg-gray-100 p-8 overflow-hidden">
+    <div id="mainContainer" class="max-w-7xl mx-auto relative">
+        <!-- Default: Upload form in center -->
+        <div id="uploadSection" class="flex items-center justify-center min-h-screen transition-all duration-700 ease-in-out">
+            <form id="uploadForm" method="post" enctype="multipart/form-data"
+                class="w-full max-w-lg bg-white p-6 rounded-lg shadow-md space-y-4">
+                {% csrf_token %}
+                {{ form.as_p }}
 
-        <div>
-            <p>Switch: Picture style</p>
+                <div>
+                    <p>Switch: Picture style</p>
+                </div>
+
+                <div class="flex items-center gap-4 mb-6">
+                    <label for="styleSwitch" class="font-medium">Picture style:</label>
+                    <button type="button" id="styleSwitchBtn" class="relative inline-flex items-center h-8 rounded-full w-16 bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <span id="switchKnob" class="inline-block h-7 w-7 bg-white rounded-full shadow transform transition-transform translate-x-1"></span>
+                    </button>
+                    <span id="switchText" class="text-base font-semibold text-gray-700 select-none">Realistic</span>
+                </div>
+
+                <div id="pdfDisplay" class="border border-dashed border-gray-300 rounded-lg p-4 text-gray-500 text-center">
+                    <!-- Placeholder for the PDF -->
+                    <p class="text-sm">The PDF will be displayed here</p>
+                    <object id="pdfIframe" class="hidden" width="100%" height="400px" type="application/pdf"
+                        style="border: none;">
+                        <p>Your browser does not support PDF preview.</p>
+                    </object>
+                </div>
+
+                <!-- Buttons section -->
+                <div id="buttonsSection">
+                    <button type="submit" id="submitBtn"
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2">
+                        Upload
+                    </button>
+                </div>
+            </form>
         </div>
 
-        <div class="flex items-center gap-4 mb-6">
-            <label for="styleSwitch" class="font-medium">Picture style:</label>
-            <button type="button" id="styleSwitchBtn" class="relative inline-flex items-center h-8 rounded-full w-16 bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <span id="switchKnob" class="inline-block h-7 w-7 bg-white rounded-full shadow transform transition-transform translate-x-1"></span>
-            </button>
-            <span id="switchText" class="text-base font-semibold text-gray-700 select-none">Realistic</span>
-        </div>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const btn = document.getElementById('styleSwitchBtn');
-                const knob = document.getElementById('switchKnob');
-                const text = document.getElementById('switchText');
-                let isHandDrawing = false;
-                btn.addEventListener('click', function() {
-                    isHandDrawing = !isHandDrawing;
-                    if (isHandDrawing) {
-                        knob.style.transform = 'translateX(2.25rem)';
-                        btn.classList.remove('bg-gray-300');
-                        btn.classList.add('bg-blue-400');
-                        text.textContent = 'Hand Drawing';
-                    } else {
-                        knob.style.transform = 'translateX(0.25rem)';
-                        btn.classList.remove('bg-blue-400');
-                        btn.classList.add('bg-gray-300');
-                        text.textContent = 'Realistic';
-                    }
-                });
-            });
-        </script>
+        <!-- Progress panel - same level as upload, slides from right -->
+        <div id="progressPanel" class="flex items-center justify-end min-h-screen absolute inset-0 transform translate-x-full transition-transform duration-700 ease-in-out">
+            <div class="w-full max-w-lg bg-white p-6 rounded-lg shadow-md space-y-4">
+                <!-- Header -->
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-semibold text-gray-800">Processing Status</h3>
+                    <button id="closeProgressBtn" class="text-gray-500 hover:text-gray-700 text-xl font-bold">
+                        ×
+                    </button>
+                </div>
+                
+                <!-- Progress bar -->
+                <div class="bg-gray-200 rounded-full h-6">
+                    <div id="progressBar" class="bg-blue-500 h-6 rounded-full text-center text-white text-sm leading-6 transition-all duration-500 ease-out" style="width: 0%">0%</div>
+                </div>
+                
+                <p id="processingMessage" class="text-center text-gray-600 text-lg">Starting processing...</p>
+                
+                <!-- Processing steps indicator -->
+                <div class="space-y-3">
+                    <div id="step1" class="flex items-center space-x-3 text-gray-400 transition-all duration-300">
+                        <div class="w-5 h-5 rounded-full border-2 border-gray-300 transition-all duration-300 flex items-center justify-center">
+                            <div class="w-2 h-2 rounded-full bg-transparent transition-all duration-300"></div>
+                        </div>
+                        <span class="text-sm">Upload & Parse Document</span>
+                    </div>
+                    <div id="step2" class="flex items-center space-x-3 text-gray-400 transition-all duration-300">
+                        <div class="w-5 h-5 rounded-full border-2 border-gray-300 transition-all duration-300 flex items-center justify-center">
+                            <div class="w-2 h-2 rounded-full bg-transparent transition-all duration-300"></div>
+                        </div>
+                        <span class="text-sm">Generate Text Content</span>
+                    </div>
+                    <div id="step3" class="flex items-center space-x-3 text-gray-400 transition-all duration-300">
+                        <div class="w-5 h-5 rounded-full border-2 border-gray-300 transition-all duration-300 flex items-center justify-center">
+                            <div class="w-2 h-2 rounded-full bg-transparent transition-all duration-300"></div>
+                        </div>
+                        <span class="text-sm">Create Images</span>
+                    </div>
+                    <div id="step4" class="flex items-center space-x-3 text-gray-400 transition-all duration-300">
+                        <div class="w-5 h-5 rounded-full border-2 border-gray-300 transition-all duration-300 flex items-center justify-center">
+                            <div class="w-2 h-2 rounded-full bg-transparent transition-all duration-300"></div>
+                        </div>
+                        <span class="text-sm">Generate Easy Read Document</span>
+                    </div>
+                </div>
 
-        <div id="pdfDisplay" class="border border-dashed border-gray-300 rounded-lg p-4 text-gray-500 text-center">
-            <!-- Placeholder for the PDF -->
-            <p class="text-sm">The PDF will be displayed here</p>
-            <object id="pdfIframe" class="hidden" width="100%" height="500px" type="application/pdf"
-                style="border: none;">
-                <p>Your browser does not support PDF preview.</p>
-            </object>
+                <!-- Progress details -->
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <div class="text-sm text-gray-600">
+                        <div class="flex justify-between mb-2">
+                            <span>Estimated time:</span>
+                            <span id="estimatedTime">2-3 minutes</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Status:</span>
+                            <span id="currentStatus" class="font-medium text-blue-600">Processing...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="button" id="cancelBtn" 
+                        class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2">
+                        Cancel Processing
+                    </button>
+                </div>
+            </div>
         </div>
-        <button type="submit"
-            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2">
-            Upload
-        </button>
-    </form>
+    </div>
 
     <script>
+        let isProcessing = false;
+        let progressInterval = null;
+
+        // Picture style switch
+        document.addEventListener('DOMContentLoaded', function() {
+            const btn = document.getElementById('styleSwitchBtn');
+            const knob = document.getElementById('switchKnob');
+            const text = document.getElementById('switchText');
+            let isHandDrawing = false;
+            
+            btn.addEventListener('click', function() {
+                isHandDrawing = !isHandDrawing;
+                if (isHandDrawing) {
+                    knob.style.transform = 'translateX(2.25rem)';
+                    btn.classList.remove('bg-gray-300');
+                    btn.classList.add('bg-blue-400');
+                    text.textContent = 'Hand Drawing';
+                } else {
+                    knob.style.transform = 'translateX(0.25rem)';
+                    btn.classList.remove('bg-blue-400');
+                    btn.classList.add('bg-gray-300');
+                    text.textContent = 'Realistic';
+                }
+            });
+        });
+
+        // PDF preview functionality
         document.getElementById('pdfInput').addEventListener('change', async function (event) {
             const file = event.target.files[0];
 
@@ -65,6 +148,7 @@
 
             const formData = new FormData();
             formData.append('pdf_file', file);
+            formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
 
             try {
                 const response = await fetch("{% url 'upload_file' %}", {
@@ -72,25 +156,244 @@
                     body: formData,
                 });
 
-                const data = await response.json(); // Parse JSON response
+                const data = await response.json();
                 if (response.ok) {
                     const fileUrl = data.file_url;
-                    // Render the file dynamically in an iframe
                     const pdfDisplay = document.getElementById('pdfDisplay');
                     pdfDisplay.innerHTML = `
-                  <iframe 
-                      src="${fileUrl}#toolbar=0"
-                      width="100%"
-                      height="500px"
-                      style="border: none;">
-                  </iframe>
-              `;
+                        <iframe 
+                            src="${fileUrl}#toolbar=0"
+                            width="100%"
+                            height="400px"
+                            style="border: none;">
+                        </iframe>
+                    `;
                 }
             } catch (error) {
                 console.error("Error:", error);
                 alert("An error occurred while uploading or converting the file.");
             }
         });
+
+        // Show progress panel
+        function showProgressPanel() {
+            const panel = document.getElementById('progressPanel');
+            const uploadSection = document.getElementById('uploadSection');
+            
+            // Slide upload section to the left
+            uploadSection.style.transform = 'translateX(-30%)';
+            
+            // Slide in progress panel from right
+            panel.style.transform = 'translateX(0%)';
+        }
+
+        // Hide progress panel
+        function hideProgressPanel() {
+            const panel = document.getElementById('progressPanel');
+            const uploadSection = document.getElementById('uploadSection');
+            
+            // Slide upload section back to center
+            uploadSection.style.transform = 'translateX(0)';
+            
+            // Slide out progress panel to right
+            panel.style.transform = 'translateX(100%)';
+        }
+
+        // Cancel processing
+        function cancelProcessing() {
+            isProcessing = false;
+            
+            // Clear any running intervals
+            if (progressInterval) {
+                clearTimeout(progressInterval);
+                progressInterval = null;
+            }
+
+            // Send cancellation request to server
+            fetch('/cancel-processing/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({})
+            }).catch(error => {
+                console.log('Cancel request failed:', error);
+            });
+
+            // Reset UI
+            document.getElementById('submitBtn').classList.remove('hidden');
+            document.getElementById('cancelBtn').classList.add('hidden');
+            document.getElementById('processingMessage').textContent = 'Processing cancelled.';
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressBar').textContent = '0%';
+            document.getElementById('currentStatus').textContent = 'Cancelled';
+            
+            resetStepIndicators();
+            hideProgressPanel();
+        }
+
+        // Event listeners
+        document.getElementById('cancelBtn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to cancel the processing?')) {
+                cancelProcessing();
+            }
+        });
+
+        document.getElementById('closeProgressBtn').addEventListener('click', function() {
+            if (!isProcessing || confirm('Processing is still running. Are you sure you want to close this panel?')) {
+                hideProgressPanel();
+            }
+        });
+
+        // Reset step indicators
+        function resetStepIndicators() {
+            const steps = ['step1', 'step2', 'step3', 'step4'];
+            steps.forEach(stepId => {
+                const stepElement = document.getElementById(stepId);
+                if (stepElement) {
+                    const circle = stepElement.querySelector('div');
+                    const dot = circle.querySelector('div');
+                    
+                    stepElement.classList.remove('text-green-600', 'text-blue-600');
+                    stepElement.classList.add('text-gray-400');
+                    circle.classList.remove('bg-green-500', 'border-green-500', 'border-blue-500');
+                    circle.classList.add('border-gray-300');
+                    dot.classList.remove('bg-green-500', 'bg-blue-500');
+                    dot.classList.add('bg-transparent');
+                }
+            });
+        }
+
+        // Form submission handling
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('pdfInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a file first!');
+                return;
+            }
+
+            isProcessing = true;
+
+            // Show progress panel
+            showProgressPanel();
+            
+            // Update UI
+            document.getElementById('submitBtn').classList.add('hidden');
+            document.getElementById('cancelBtn').classList.remove('hidden');
+
+            const formData = new FormData();
+            formData.append('pdf_file', file);
+            formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+            try {
+                const response = await fetch("{% url 'process' %}", {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (response.ok && isProcessing) {
+                    updateProgress();
+                } else if (!isProcessing) {
+                    return;
+                } else {
+                    throw new Error('Failed to start processing');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while starting the process.');
+                cancelProcessing();
+            }
+        });
+
+        // Update step indicators
+        function updateStepIndicators(progress) {
+            const steps = ['step1', 'step2', 'step3', 'step4'];
+            const thresholds = [10, 40, 80, 100];
+            
+            steps.forEach((stepId, index) => {
+                const stepElement = document.getElementById(stepId);
+                if (stepElement) {
+                    const circle = stepElement.querySelector('div');
+                    const dot = circle.querySelector('div');
+                    
+                    if (progress >= thresholds[index]) {
+                        stepElement.classList.remove('text-gray-400', 'text-blue-600');
+                        stepElement.classList.add('text-green-600');
+                        circle.classList.remove('border-gray-300', 'border-blue-500');
+                        circle.classList.add('bg-green-500', 'border-green-500');
+                        dot.classList.remove('bg-transparent', 'bg-blue-500');
+                        dot.classList.add('bg-white');
+                    } else if (progress >= (thresholds[index] - 10)) {
+                        stepElement.classList.remove('text-gray-400');
+                        stepElement.classList.add('text-blue-600');
+                        circle.classList.remove('border-gray-300');
+                        circle.classList.add('border-blue-500');
+                        dot.classList.remove('bg-transparent');
+                        dot.classList.add('bg-blue-500');
+                    }
+                }
+            });
+        }
+
+        // Progress update function
+        function updateProgress() {
+            if (!isProcessing) {
+                return;
+            }
+
+            fetch('/progress')
+                .then(response => response.json())
+                .then(data => {
+                    if (!isProcessing) {
+                        return;
+                    }
+
+                    const progressBar = document.getElementById('progressBar');
+                    const processingMessage = document.getElementById('processingMessage');
+                    const currentStatus = document.getElementById('currentStatus');
+                    
+                    progressBar.style.width = `${data.progress}%`;
+                    progressBar.textContent = `${data.progress}%`;
+                    
+                    // Update step indicators
+                    updateStepIndicators(data.progress);
+                    
+                    if (data.progress >= 10 && data.progress < 40) {
+                        processingMessage.textContent = "Generating texts...";
+                        currentStatus.textContent = "Generating content";
+                    } else if (data.progress >= 40 && data.progress < 80) {
+                        processingMessage.textContent = "Generating images...";
+                        currentStatus.textContent = "Creating images";
+                    } else if (data.progress >= 80 && data.progress < 100) {
+                        processingMessage.textContent = "Generating the Easy Read Document...";
+                        currentStatus.textContent = "Finalizing document";
+                    } else if (data.progress >= 100) {
+                        processingMessage.textContent = "Processing complete! Redirecting...";
+                        currentStatus.textContent = "Complete";
+                    }
+                    
+                    if (data.progress >= 100) {
+                        isProcessing = false;
+                        progressInterval = setTimeout(() => {
+                            window.location.href = '/upload-template';
+                        }, 1500);
+                    } else if (data.progress === 80) {
+                        progressInterval = setTimeout(updateProgress, 1500);
+                    } else {
+                        progressInterval = setTimeout(updateProgress, 500);
+                    }
+                })
+                .catch(error => {
+                    if (isProcessing) {
+                        progressInterval = setTimeout(updateProgress, 500);
+                    }
+                });
+        }
     </script>
 </div>
 {% endblock %}

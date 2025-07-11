@@ -24,4 +24,5 @@ urlpatterns = [
     path('about/', about_view, name='about'),
     path('contact/', contact_view, name='contact'),
     path('easyread-intro/', views.easyread_intro, name='easyread_intro'),
+    path('cancel-processing/', views.cancel_processing_view, name='cancel_processing'),
 ]
